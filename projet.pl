@@ -1,4 +1,16 @@
 
+% plateau arbitraire pour tester l'affichage : les 9 piles de 4 jetons, la position du trader, la bourse, J1R, J2R
+plateauTest([
+	[[ble,sucre,sucre,sucre],[cacao,riz,ble,riz],[ble,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[ble,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[mais,cafe,cacao,mais]], 	
+	2,
+	[[ble,7],[riz,6],[cacao,6],[cafe,6],[sucre,6],[mais,6]],							
+	[],					
+	[]
+	]).
+
+
+
+
 
 %----------------------------Variables définies----------------------------
 
@@ -50,6 +62,9 @@ une_pile(A, B, C, D, Pi, Sac, Sac_res):-
 
 
 
+
+
+
 % met dans Elt un élément aléatoire de List : calcule la longueur de la liste, prends un élément d'indice aléatoire et le renvoie
 choose([], []).
 choose(List, Elt) :-
@@ -96,10 +111,12 @@ element(X, [T|Q]):- T\= X, element(X, Q).
 elementindice(X, [X|_], 1).
 elementindice(X, [T|Q], I):- T\= X, element(X, Q, I2), I is I2 + 1.
 
-
 %va chercher le Nième élément de L et renvoie l'élément X
+%nieme(2, [[ble,7], [riz,7], [cacao,7]], [X|_]). Si on veut juste la tête d'une sous liste
 nieme(1, [X|_], X):-!.
 nieme(N, [_|Q], X):- M is N -1, nieme(M, Q, X).
+
+
 
 
 % Valeur des marchandises : les valeurs seront modifiées à chaque tour de jeu
@@ -142,16 +159,14 @@ afficher([H|Q]):- write(H). %tab(3).
 
 %LANCER positionTrader(Trader), write('trader position'), write(Trader), nl, affichageElement1Trad([[1, 2, 3], [1,3,2], [4,6,3], [4, 2, 1]], 1, Trader).
 %affiche le premier élément de chaque pile précédé de son indice avec le Trader bien placé
-
-affichageElement1Trad([A|T], Trader, Trader):- write(Trader), tab(2), afficher(A), write(' Trader'), nl, Y is Trader+1, affichageElement1Trad(T, Y, Trader).
+affichageElement1Trad([], _, _).
+affichageElement1Trad([A|T], Trader, Trader):- write(Trader), tab(2), afficher(A), tab(10), write(' <-- Trader'), nl, Y is Trader+1, affichageElement1Trad(T, Y, Trader).
 affichageElement1Trad([A|T], X, Trader):- X\=Trader, write(X), tab(2), afficher(A), nl, Y is X+1, affichageElement1Trad(T, Y, Trader).
 
 
 % affiche le premier élément de chaque pile
 affichageElement1([]).
-affichageElement1([A|T]):- tab(2), afficher(A), affichageElement1(T) .
-
-
+affichageElement1([A|T]):- tab(2), afficher(A), affichageElement1(T).
 
 
 positionInitiale(X):- random(1,10,X).	% genere un nombre entre 1 et 9
@@ -159,14 +174,13 @@ positionInitiale(X):- random(1,10,X).	% genere un nombre entre 1 et 9
 % position du trader aléatoire au début, puis est modfiée de 1 à 3 unités, allant de la position 1 à 9
 positionTrader(X):- random(1,4,X).
 
-
-
-
+%Afficher les piles du plateau et le trader à la bonne position EN DEBUT DE PARTIE
 affiche_piles_ini_trad:- write('-------Piles-------'), nl, generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P),
- nl, affichageElement1Trad(1, P).
+ nl, positionInitiale(Trader), write('-------Position du Trader : '), write(Trader),write(' -------'), nl, affichageElement1Trad(P, 1, Trader).
 
-%affiche le premier jetons des piles
-affiche_piles(P):- write('-------Piles-------'), nl, nl, affichageElement1_ind(P).
+
+%Afficher les piles du plateau et le trader à la bonne position EN COURS DE PARTIE
+affiche_piles(P, Trader):- write('-------Piles-------'), nl, nl, affichageElement1Trad(P, 1, Trader).
 
 
 affiche_elements_liste([]).									% Pour afficher tous les élements d'une liste séparément
@@ -196,24 +210,6 @@ affiche_bourse([T|Q]):- afficheValeur(T), tab(3), affiche_bourse(Q), !.
 
 
 
-affiche_position_ini(X):-
-	random(1,10,X),
-	Y is 3*X,
-	Z is Y+3*X,
-	tab(Z),
-	write('X'),
-	nl,
-	write('X = '),
-	write(X),
-	nl, nl, nl.
-	/*
-	write('Y ='),
-	write(Y),
-	nl,
-	write('Z ='),
-	write(Z).
-*/
-
 affiche_position(X):-
 	write('-------Position du Trader-------'), nl,
 	Y is 3*X,
@@ -242,8 +238,6 @@ affiche_J2Reserve(R2):- write('-------Réserve du Joueur 2-------'), nl, j2Reser
 plateau_depart(M,B,P,R1,R2):- 
 	affiche_piles_ini_trad, 
 	nl,
-	affiche_position_ini(Position),
-	nl,
 	write('-------Bourse-------'), nl,
 	bourse(B),
 	affiche_bourse(B), nl,
@@ -263,42 +257,40 @@ plateau_depart(M,B,P,R1,R2):-
 %coup_possible(Plateau, Coup)
 
 coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
+	repeat,
 
-	write('Entrez Un déplacement (1, 2 ou 3) : '),
+	write('Entrez un déplacement (1, 2 ou 3) : '),
 	read(Deplacement),
-
-
 	Deplacement>=1,
 	Deplacement =< 3, 
 
-	Y is Pos + D,				
+	Y is Pos + Deplacement,				
 	Pos2 is Y mod 9,				%PROBLEME nbre de piles
-
 	Prec is Y-1,
-	Suiv is Y+1 					%déterminer le numéro des piles afin d'y accéder
+	Suiv is Y+1,					%déterminer le numéro des piles afin d'y accéder
+	write(Prec), nl,
+	write(Suiv), nl,
 
+
+
+					%accéder au Prec ième élément de P
+
+
+	write('Quelle céréale voulez-vous Garder ?')
 
 
 
 	.
 
 /*
-coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
-
-	Deplacement=<1,
-	Deplacement >= 3,
-
-	write('Recommencez'),
-	coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend])
-
-	.
+	Prendre la céréale d'
+	
+	nieme(Prec, P, [X|_]),
+	nieme(Suiv, P, [X|_]),
 
 */
 
 /* Si déplacement incorrect, renvoyer un message, et relancer la fonction coup
-
-
-
 
 */
 
@@ -324,8 +316,8 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [P2, Pos2, B2, J1R2,
 	del_first(Prec, P, P1), 
 	del_first(Suiv, P1, P2),
 	write(P2),
-	affiche_piles(P), nl,
-	affiche_piles(P2)
+	affiche_piles(P, Pos), nl,
+	affiche_piles(P2, Pos2)
 	.
 
 
@@ -435,16 +427,6 @@ boucle_JvsJ:-
 
 
 	.
-
-
-% plateau arbitraire pour tester l'affichage : les 9 piles de 4 jetons, la position du trader, la bourse, J1R, J2R
-plateauTest([
-	[[ble,sucre,sucre,sucre],[cacao,riz,ble,riz],[ble,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[ble,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[mais,cafe,cacao,mais]], 	
-	2,
-	[[ble,7],[riz,6],[cacao,6],[cafe,6],[sucre,6],[mais,6]],							
-	[],					
-	[]
-	]).
 
 
 

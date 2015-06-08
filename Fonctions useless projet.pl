@@ -56,8 +56,6 @@ affiche_plateau(M,B,P,R1,R2):-
 	write(J1R2), nl,
 	add(Garde, J2R, J2R2),
 	write(J2R2), nl,
-
-
 	affiche_position_ini(X):-
 	random(1,10,X),
 	Y is 3*X,
@@ -76,6 +74,30 @@ affiche_plateau(M,B,P,R1,R2):-
 	write(Z).
 */
 
+% LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), coup_possible([P, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
+%coup_possible(Plateau, Coup)
+
+coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
+	repeat,
+	write('Entrez un déplacement (1, 2 ou 3) : '),
+	read(Deplacement), Deplacement>=1, Deplacement =< 3, 
+	Y is Pos + Deplacement,				
+%	module(Y, 9, Pos2),
+	Pos2 is Y mod 9,				%PROBLEME nbre de piles
+	Prec is Pos2-1,
+	Suiv is Pos2+1,					%déterminer le numéro des piles afin d'y accéder
+	write('position précédente '), write(Prec), nl,
+	write('position suivante '), write(Suiv), nl,
+	nieme(Prec, P, [Choix1|_]),
+	nieme(Suiv, P, [Choix2|_]),
+	write('Quelle céréale voulez-vous Garder ?'),
+	repeat,
+	write(' Tapez 1 pour '), write(Choix1), write(' ou Tapez 2 pour '), write(Choix2), write(' : '),
+	read(Choix), Choix>=1, Choix=<2,
+	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
+	write('Céréale gardée : '), write(Garde), nl,
+	write('Céréale vendue : '), write(Vend), nl
+	.
 
 
 

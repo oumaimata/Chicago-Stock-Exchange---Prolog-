@@ -58,8 +58,10 @@ une_pile(A, B, C, D, Pi, Sac, Sac_res):-
 	write(Sac), nl,
 	write('Sac resultat'), nl,write(Sac_res).
 */
-	% COMMENT envoyer le résultat de jetons pour qu'il puisse être actualisé et utilisé par les autres piles ????
 
+%Nouveau modulo pour ne pas avoir de résultat égal à 0
+modulo(X, X, X):- !.				%Pour éviter le 9 mod 9 = 0 par exemple
+modulo(X, Nbpiles, Res):- Res is X mod Nbpiles.
 
 
 
@@ -132,7 +134,7 @@ bourse([
 
 
 j1Reserve([]).			 % on va compléter leur réserve respective au fur et à mesure du jeu 
-j2Reserve([mais]).
+j2Reserve([]).
 
 
 
@@ -234,7 +236,7 @@ affiche_J2Reserve(R2):- write('-------Réserve du Joueur 2-------'), nl, j2Reser
 
 
 
-% Les reserves doivent être vides
+% Les reserves doivent être vides d'après les règles du jeu
 plateau_depart(M,B,P,R1,R2):- 
 	affiche_piles_ini_trad, 
 	nl,
@@ -249,50 +251,51 @@ plateau_depart(M,B,P,R1,R2):-
 	.
 
 
+/*			%PROBLEME
+PositionPrec(1, 9).
+PositionPrec(Pos, NPos):- NPos is Pos-1.
+
+PositionSuiv(9, 1).
+PositionSuiv(Pos, NPos):- NPos is Pos+1.
+*/
 
 
-
-
-% LANCER plateauTest([P, Pos, B, J1R, J2R]), coup_possible([P, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
+% LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), coup_possible([P, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
 %coup_possible(Plateau, Coup)
 
 coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
 	repeat,
-
 	write('Entrez un déplacement (1, 2 ou 3) : '),
-	read(Deplacement),
-	Deplacement>=1,
-	Deplacement =< 3, 
-
+	read(Deplacement), Deplacement>=1, Deplacement =< 3, 
 	Y is Pos + Deplacement,				
-	Pos2 is Y mod 9,				%PROBLEME nbre de piles
-	Prec is Y-1,
-	Suiv is Y+1,					%déterminer le numéro des piles afin d'y accéder
-	write(Prec), nl,
-	write(Suiv), nl,
+	modulo(Y, 9, Pos2),				%PROBLEME nbre de piles
+	write('Nouvelle position du Trader : '), write(Pos2), nl,
+	Prec is Pos2-1,
 
+%	PositionPrec(Pos2, Prec),
+%	PositionSuiv(Pos2, Suiv),
 
+	modulo(Pos2+1, 9, Suiv),
+	Suiv is Pos2+1,					%déterminer le numéro des piles afin d'y accéder
 
-					%accéder au Prec ième élément de P
-
-
-	write('Quelle céréale voulez-vous Garder ?')
-
-
-
+	write('Position précédente '), write(Prec), nl,
+	write('Position suivante '), write(Suiv), nl,
+	nieme(Prec, P, [Choix1|_]),
+	nieme(Suiv, P, [Choix2|_]),
+	write('Quelle céréale voulez-vous Garder ?'),
+	repeat,
+	write(' Tapez 1 pour '), write(Choix1), write(' ou Tapez 2 pour '), write(Choix2), write(' : '),
+	read(Choix), Choix>=1, Choix=<2,
+	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
+	write('Céréale gardée : '), write(Garde), nl,
+	write('Céréale vendue : '), write(Vend), nl
 	.
 
-/*
-	Prendre la céréale d'
-	
-	nieme(Prec, P, [X|_]),
-	nieme(Suiv, P, [X|_]),
+%cerealegardee(Choix, Choix1, Choix2, Garde, Vend).
+cerealegardee(1, Choix1, Choix2, Choix1, Choix2).	%Choix1
+cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 
-*/
 
-/* Si déplacement incorrect, renvoyer un message, et relancer la fonction coup
-
-*/
 
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), jouer_coup([P, Pos, B, J1R, J2R],[j1, 2, sucre, riz],[P2, Pos2, B2, J1R2, J2R2]).
 
@@ -397,7 +400,7 @@ nbPiles([T|Q], X):-
 	nbPiles(Q,Y),
 	X is Y+1
 	.
-
+						%PROBLEME donne le nombre de sous listes, même vides
 
 	
 

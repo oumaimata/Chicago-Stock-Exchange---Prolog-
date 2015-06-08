@@ -262,7 +262,6 @@ PositionSuiv(Pos, NPos):- NPos is Pos+1.
 
 % LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), coup_possible([P, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
 %coup_possible(Plateau, Coup)
-
 coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
 	repeat,
 	write('Entrez un déplacement (1, 2 ou 3) : '),
@@ -400,14 +399,19 @@ nbPiles([T|Q], X):-
 	nbPiles(Q,Y),
 	X is Y+1
 	.
-						%PROBLEME donne le nombre de sous listes, même vides
+						%PROBLEME donne le nombre de sous listes, même vides : nbPiles([[1,2,3], []], X). => X=2
 
-	
 
+%LANCER compte([[1,2,3], []], X).
+% compte(L,N) est vrai si N est le nombre d'éléments dans la liste L.
+compte([],0).
+compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .
 
 
 qui(X):-
+%	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
 	write('Qui joue : j1 ou j2 ?'),
+%	qui\= 'j1', qui\= 'j2',
 	read(Qui).
 
 

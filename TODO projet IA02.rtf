@@ -9,7 +9,7 @@
 \
 G\'e9rer 
 \b l\'92emplacement du trader
-\b0  dans l\'92affichage : DONE \
+\b0  dans l\'92affichage : \cf2 DONE\cf0  MAIS prend quand m\'eame en compte les piles vides\
 
 \b Jouer coup
 \b0  :  DONE\
@@ -26,31 +26,28 @@ G\'e9rer
 A faire : \
 Remplacer les 9 par NPiles\
 Boucle JvsJ\
+Cr\'e9er un pr\'e9dicat alterner_joueur\
+Interface Homme_Machine et Machine/Machine :\
+Cr\'e9er des pr\'e9dicats avec le score \'e0 un instant T des Deux joueurs afin de d\'e9terminer les meilleurs coups possibles.\
 \
 \
-Affichage de la bourse et des r\'e9serves EN TROP \'e0 la fin de afficher plateau !!\
 \
-PROB :\
+
+\b PROB
+\b0  :\
+\
+Affichage Trader avec une pile vide (elle est prise en compte quand m\'eame).\
 \
 Si nouvelle position = 8 ou 9, \'e7a redemande de choisir un d\'e9placement\
 Position pr\'e9c\'e9dente = 0 si on est en 1\
 \
-9 mod 9 = 0\
 Circulaire des piles, \
-\
-Il nous demande de confirmer pour Pos2 \'85 On veut \'e9viter la question.\
 \
 Nbpiles \'e0 refaire pour d\'e9tecter la fin du jeu.\
 \
-Probl\'e8me pour le modulo9 = 0, Or on commence nos piles \'e0 1 (et non 0).\
-\
 Si m\'eame c\'e9r\'e9ale sur les piles adjacentes, savoir laquelle appartient \'e0 quelle pile pour vendre et garder\
 \
-Cr\'e9er une variable nombre de piles (qui se d\'e9cr\'e9mentera lorsqu\'92une pile est vide).\
+Cr\'e9er une variable nombre de piles (qui se d\'e9cr\'e9mentera lorsqu\'92une pile est vide) \
 \
-Cr\'e9er un pr\'e9dicat alterner_joueur\
 \
-Interface Homme_Machine et Machine/Machine :\
-\
-Cr\'e9er des pr\'e9dicats avec le score \'e0 un instant T des Deux joueurs afin de d\'e9terminer les meilleurs coups possibles.\
 }

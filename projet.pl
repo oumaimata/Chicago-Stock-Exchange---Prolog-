@@ -1,8 +1,8 @@
 
 % plateau arbitraire pour tester l'affichage : les 9 piles de 4 jetons, la position du trader, la bourse, J1R, J2R
 plateauTest([
-	[[ble,sucre,sucre,sucre],[cacao,riz,ble,riz],[ble,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[ble,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[mais,cafe,cacao,mais]], 	
-	2,
+	[[ble,sucre,sucre,sucre],[ble, riz, riz, riz],[ble,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[ble,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[mais,cafe,cacao,mais]], 	
+	8,
 	[[ble,7],[riz,6],[cacao,6],[cafe,6],[sucre,6],[mais,6]],							
 	[],					
 	[]
@@ -87,15 +87,22 @@ del(A, [A|B], B):- !.		%si premier élément de la liste, on renvoie la queue
 del(A, [B|C], [B|D]):- del(A, C, D).	%sinon on continue à chercher
 
 
+%LANCER delete_element([], [[], [1,2,3], [], [], [1,2]], X).
+%retire toutes les occurences de X dans la liste (même les listes vides).
+delete_element(_, [], []).
+delete_element(X, [X|R], R1):- delete_element(X, R, R1).
+delete_element(X, [Y|R], [Y|R1]):- X\=Y, delete_element(X, R, R1).
+
+
 
 %Supprime le premier élément d'une sous liste d'indice I d'une liste  et renvoie la nouvelle Liste
 del_first(_, [], []).
 del_first(I, P, P2):-
 	nieme(I, P, [T|Q]),
 
-	substitue([T|Q], Q, P, P2),
-	write(P), nl,
-	write(P2), nl
+	substitue([T|Q], Q, P, P2)
+%	write(P), nl,
+%	write(P2), nl
 	.
 
 
@@ -177,7 +184,7 @@ positionInitiale(X):- random(1,10,X).	% genere un nombre entre 1 et 9
 positionTrader(X):- random(1,4,X).
 
 %Afficher les piles du plateau et le trader à la bonne position EN DEBUT DE PARTIE
-affiche_piles_ini_trad:- write('-------Piles-------'), nl, generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P),
+affiche_piles_ini_trad(P, Trader):- write('-------Piles-------'), nl, generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P),
  nl, positionInitiale(Trader), write('-------Position du Trader : '), write(Trader),write(' -------'), nl, affichageElement1Trad(P, 1, Trader).
 
 
@@ -237,53 +244,52 @@ affiche_J2Reserve(R2):- write('-------Réserve du Joueur 2-------'), nl, j2Reser
 
 
 % Les reserves doivent être vides d'après les règles du jeu
-plateau_depart(M,B,P,R1,R2):- 
-	affiche_piles_ini_trad, 
-	nl,
+plateau_depart(M, Pos, B, R1,R2):- 
+	affiche_piles_ini_trad(M, Pos), nl,
 	write('-------Bourse-------'), nl,
 	bourse(B),
 	affiche_bourse(B), nl,
 	affiche_J1Reserve(R1), nl,
 	affiche_J2Reserve(R2), nl
-	
-	%coup(Joueur, Deplacement, Garde, Vend, Position, PositionCoup)
-
 	.
 
+plateau(M,P, B, R1,R2):- 
+	affiche_piles(M, P), nl,
+	write('-------Bourse-------'), nl,
+	bourse(B),
+	affiche_bourse(B), nl,
+	affiche_J1Reserve(R1), nl,
+	affiche_J2Reserve(R2), nl
+	.
 
-/*			%PROBLEME
-PositionPrec(1, 9).
-PositionPrec(Pos, NPos):- NPos is Pos-1.
+positionPrec(1, X, List):- length(List, X).
+positionPrec(Pos, NPos, List):- NPos is Pos-1.
 
-PositionSuiv(9, 1).
-PositionSuiv(Pos, NPos):- NPos is Pos+1.
-*/
+positionSuiv(X, 1, List):- length(List, X).
+positionSuiv(Pos, NPos, List):- NPos is Pos+1.
 
 
-% LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), coup_possible([P, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
+
+% LANCER plateauTest([P, Pos, B, J1R, J2R]), delete_element([], P, NP), affiche_piles(P, Pos), coup_possible([NP, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
 %coup_possible(Plateau, Coup)
 coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
 	repeat,
 	write('Entrez un déplacement (1, 2 ou 3) : '),
 	read(Deplacement), Deplacement>=1, Deplacement =< 3, 
-	Y is Pos + Deplacement,				
-	modulo(Y, 9, Pos2),				%PROBLEME nbre de piles
+	Y is Pos + Deplacement,	
+	length(P, NbPiles), 	
+	modulo(Y, NbPiles, Pos2),	
+	affiche_piles(P, Pos2),			
 	write('Nouvelle position du Trader : '), write(Pos2), nl,
-	Prec is Pos2-1,
-
-%	PositionPrec(Pos2, Prec),
-%	PositionSuiv(Pos2, Suiv),
-
-	modulo(Pos2+1, 9, Suiv),
-	Suiv is Pos2+1,					%déterminer le numéro des piles afin d'y accéder
-
+	positionPrec(Pos2, Prec, P),
+	positionSuiv(Pos2, Suiv, P),
 	write('Position précédente '), write(Prec), nl,
 	write('Position suivante '), write(Suiv), nl,
 	nieme(Prec, P, [Choix1|_]),
 	nieme(Suiv, P, [Choix2|_]),
 	write('Quelle céréale voulez-vous Garder ?'),
 	repeat,
-	write(' Tapez 1 pour '), write(Choix1), write(' ou Tapez 2 pour '), write(Choix2), write(' : '),
+	write(' Tapez 1 pour prendre de la pile Précédente '), write(Choix1), nl, write(' ou Tapez 2 pour prendre de la pile Suivante '), write(Choix2), write(' : '),
 	read(Choix), Choix>=1, Choix=<2,
 	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
 	write('Céréale gardée : '), write(Garde), nl,
@@ -299,13 +305,17 @@ cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), jouer_coup([P, Pos, B, J1R, J2R],[j1, 2, sucre, riz],[P2, Pos2, B2, J1R2, J2R2]).
 
 %jouer_coup additionne le déplacement du Trader à la position initiale, modifie la réserve du joueur qui joue,
-%décrémente la céréale vendue, et retourne le nouveau plateau avec les 2 jetons de moins
+%décrémente la céréale vendue, et retourne le nouveau plateau avec les 2 jetons de moins (et supprime les éventuelles listes vides)
 % jouer_coup(+PlateauInitial, ?Coup, ?NouveauPlateau)
-jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [P2, Pos2, B2, J1R2, J2R2]):-
 
-	Y is Pos + D,				
-	Pos2 is Y mod 9,				% **************************** PROBLEME SI Pos2 = 9 ****************************
+jouerCoup:- jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]).
 
+jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
+	coup_possible([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]),
+	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
+	Y is Pos + D,
+	length(Ptemp, NbPiles),	
+	modulo(Y, NbPiles, Pos2),				
 	write(Pos2), nl,
 	add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2),
 	write('Réserve du Joueur 1 :'), write(J1R2), nl,
@@ -313,20 +323,20 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [P2, Pos2, B2, J1R2,
 	bourse_sortie([Vend, Valeur], B, B2),
 	affiche_bourse(B), nl,
 	affiche_bourse(B2), nl, 
-	Prec is Pos2-1,
-	Suiv is Pos2+1,
-	del_first(Prec, P, P1), 
-	del_first(Suiv, P1, P2),
-	write(P2),
-	affiche_piles(P, Pos), nl,
-	affiche_piles(P2, Pos2)
-	.
+	positionPrec(Pos2, Prec, Ptemp),
+	positionSuiv(Pos2, Suiv, Ptemp),
 
+	del_first(Prec, Ptemp, P1), 
+	del_first(Suiv, P1, P2),
+	delete_element([], P2, NP)							
+%	write(P2),
+%	affiche_piles(Ptemp, Pos), nl,
+%	affiche_piles(NP, Pos2)
+	.
 
 %On fournit la céréale et sa valeur avec la bourse actuelle, et on renvoie la bourse modifiée avec cette valeur
 bourse_sortie([Vend, Valeur],B, B2):-
 	element([Vend, Valeur], B),
-	write(Valeur),
 	V2 is Valeur-1,
 	substitue([Vend, Valeur],[Vend, V2], B, B2).
 
@@ -394,13 +404,11 @@ score_joueur([T|Q], BourseActuelle, Score):-
 
 % LANCER generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P), nbPiles(P, X).
 % calcule le nombre de piles de marchandises non vides (équivalent à length)
-nbPiles([], 0).
-nbPiles([T|Q], X):-
+nb_Piles([], 0).
+nb_Piles([T|Q], X):-
 	nbPiles(Q,Y),
 	X is Y+1
 	.
-						%PROBLEME donne le nombre de sous listes, même vides : nbPiles([[1,2,3], []], X). => X=2
-
 
 %LANCER compte([[1,2,3], []], X).
 % compte(L,N) est vrai si N est le nombre d'éléments dans la liste L.
@@ -412,25 +420,40 @@ qui(X):-
 %	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
 	write('Qui joue : j1 ou j2 ?'),
 %	qui\= 'j1', qui\= 'j2',
-	read(Qui).
+	read(X).
 
 
-JVsJ.
+%alterner(JoueurActuel, Joueur Suivant).
+alterner('j1', 'j2').
+alterner('j2', 'j1').
+
+jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),
+	repeat, 
+	boucle_JvsJ, !
+	.
 
 boucle_JvsJ:-
-	plateau_depart(Piles,Bourse,Pos,Res1,Res2),
-
-%	repeat, 
+%	plateau_depart(Piles,Pos,Bourse,Res1,Res2),
 
 
-	qui(Joueur),
-
-	coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]), 
-
-	jouer_coup([Piles, Pos, Bourse, Res1, Res2], [Joueur, D, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides
 
 
-	nbPiles=2				% condition d'arrêt : 2 piles 
+
+	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]), !,
+
+	plateau(PlateauN, PosN, BN, Res1N, Res2N)
+
+%	write(PlateauN)
+
+%	nb_Piles(PlateauN, NBPILES), !,
+
+%	alterner(JoueurPrec, Joueur),
+
+%	NBPILES=2,				% condition d'arrêt : 2 piles 
+
+%	write('Partie Terminée')
+%	compte()
 
 
 	.

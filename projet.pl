@@ -24,6 +24,7 @@ jetons([
 	mais, mais, mais, mais, mais, mais
 	]).
 
+deplacement([1, 2, 3]).
 
 %les piles sont des listes
 generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P):- 
@@ -253,7 +254,10 @@ plateau_depart(M, Pos, B, R1,R2):-
 	affiche_J2Reserve(R2), nl
 	.
 
-plateau(M,P, B, R1,R2):- 
+plateau:-[M, Pos, B, R1, R2].
+
+
+plateauEncours(M,P, B, R1,R2):- 
 	affiche_piles(M, P), nl,
 	write('-------Bourse-------'), nl,
 	bourse(B),
@@ -261,6 +265,7 @@ plateau(M,P, B, R1,R2):-
 	affiche_J1Reserve(R1), nl,
 	affiche_J2Reserve(R2), nl
 	.
+	
 
 positionPrec(1, X, List):- length(List, X).
 positionPrec(Pos, NPos, List):- NPos is Pos-1.
@@ -273,6 +278,7 @@ positionSuiv(Pos, NPos, List):- NPos is Pos+1.
 % LANCER plateauTest([P, Pos, B, J1R, J2R]), delete_element([], P, NP), affiche_piles(P, Pos), coup_possible([NP, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
 %coup_possible(Plateau, Coup)
 coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
+	write('********************COUP POSSIBLE*******************'), nl,
 	repeat,
 	write('Entrez un déplacement (1, 2 ou 3) : '),
 	read(Deplacement), Deplacement>=1, Deplacement =< 3, 
@@ -288,7 +294,7 @@ coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
 	nieme(Prec, P, [Choix1|_]),
 	nieme(Suiv, P, [Choix2|_]),
 	write('Quelle céréale voulez-vous Garder ?'),
-	repeat,
+%	repeat,
 	write(' Tapez 1 pour prendre de la pile Précédente '), write(Choix1), nl, write(' ou Tapez 2 pour prendre de la pile Suivante '), write(Choix2), write(' : '),
 	read(Choix), Choix>=1, Choix=<2,
 	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
@@ -301,7 +307,6 @@ cerealegardee(1, Choix1, Choix2, Choix1, Choix2).	%Choix1
 cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 
 
-
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), jouer_coup([P, Pos, B, J1R, J2R],[j1, 2, sucre, riz],[P2, Pos2, B2, J1R2, J2R2]).
 
 %jouer_coup additionne le déplacement du Trader à la position initiale, modifie la réserve du joueur qui joue,
@@ -311,7 +316,7 @@ cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 jouerCoup:- jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]).
 
 jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
-	coup_possible([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]),
+	write('********************JOUER COUP*******************'), nl,
 	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
 	Y is Pos + D,
 	length(Ptemp, NbPiles),	
@@ -350,26 +355,92 @@ substitue(X,Y,[X|R],[Y|R1]):- substitue(X,Y,R,R1), !.
 substitue(X,Y,[Z|R],[Z|R1]):- X\==Y, substitue(X,Y,R,R1).
 
 
+%LANCER plateauTest([P, Pos, B, J1R, J2R]),coups_possibles([P, Pos, B, J1R, J2R], L).	
+%coups_possibles(Plateau, ListeCoupsPossibles).		6 coups possibles
+coups_possibles([P, Pos, B, J1R, J2R], L):-
+		Coup = [Joueur, Deplacement, Garde, Vend],
+		findall(Coup, coup_possible_ordi([P, Pos, B, J1R, J2R],Coup),L),
+
+		afficher(L)
+	.
 
 
-
-
-
-%bourse([[ble,A],[riz,B2],[cacao,C],[cafe,D],[sucre,E],[mais,F]])
+coup_possible_ordi([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
+	deplacement(Deplacement),
+	Y is Pos + Deplacement,	
+	length(P, NbPiles), 	
+	modulo(Y, NbPiles, Pos2),	
+	affiche_piles(P, Pos2),
+	write('Nouvelle position du Trader : '), write(Pos2), nl,
+	positionPrec(Pos2, Prec, P),
+	positionSuiv(Pos2, Suiv, P),
+	write('Position précédente '), write(Prec), nl,
+	write('Position suivante '), write(Suiv), nl,
+	nieme(Prec, P, [Choix1|_]),
+	nieme(Suiv, P, [Choix2|_]),
+	Choix>=1, Choix=<2,
+	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
+	write('Céréale gardée : '), write(Garde), nl,
+	write('Céréale vendue : '), write(Vend), nl
+	.
 /*
-bourse([
-[ble,7],
-[riz,6],
-[cacao,6],
-[cafe,6],
-[sucre,6],
-[mais,6]
-]).
+coup_possible1([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend])
+	Y is Pos + Deplacement,	
+	length(P, NbPiles), 	
+	modulo(Y, NbPiles, Pos2),	
+	affiche_piles(P, Pos2),			
+	write('Nouvelle position du Trader : '), write(Pos2), nl,
+	positionPrec(Pos2, Prec, P),
+	positionSuiv(Pos2, Suiv, P),
+	write('Position précédente '), write(Prec), nl,
+	write('Position suivante '), write(Suiv), nl,
+	nieme(Prec, P, [Garde|_]),
+	nieme(Suiv, P, [Vend|_]),
+	write('Céréale gardée : '), write(Garde), nl,
+	write('Céréale vendue : '), write(Vend), nl.
 
-[[ble,A],[riz,B],[cacao,C],[cafe,D],[sucre,E],[mais,F]])
+coup_possible2([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend])
+	Y is Pos + Deplacement,	
+	length(P, NbPiles), 	
+	modulo(Y, NbPiles, Pos2),	
+	affiche_piles(P, Pos2),			
+	write('Nouvelle position du Trader : '), write(Pos2), nl,
+	positionPrec(Pos2, Prec, P),
+	positionSuiv(Pos2, Suiv, P),
+	write('Position précédente '), write(Prec), nl,
+	write('Position suivante '), write(Suiv), nl,
+	nieme(Suiv, P, [Garde|_]),
+	nieme(Prec, P, [Vend|_]),
+	write('Céréale gardée : '), write(Garde), nl,
+	write('Céréale vendue : '), write(Vend), nl.
+
+%	findall(X, (X,[Joueur, _, Garde1, Vend1]), L)
+%coups_possibles([P, Pos, B, J1R, J2R], [[Joueur, 1, Garde1, Vend1], [Joueur, 2, Garde1, Vend1], [Joueur, 3, Garde1, Vend1]]):-
+
+
+/*Determine tous les coups possibles en fonctions de l'état du jeu
+coups_possibles(Plateau+,JoueurQuiDoitJouer+,ListeDeCoupsPossibles-)*/
+/*
+coups_possibles(Plateau,Joueur,Liste):-
+	coupsPossibles2(Plateau,Joueur,3,Liste).
+
 */
+/*Determine tous les coups possibles de manière récursive
+coupsPossibles2(Plateau+,JoueurQuiDoitJouer+,DeplacementDuJoueur+,ListeDeCoupsPossibles-)*/
+/*
+coupsPossibles2(Plateau,Joueur,1,List):-
+	Coup1 = [Joueur,1,R1,R2],
+	coup_possible(Coup1,Plateau),
+	List = [[Joueur,1,R2,R1], Coup1].
+coupsPossibles2(Plateau,Joueur,Deplacement,List):-
+	Deplacement > 1,
+	NewD is Deplacement - 1,
+	coupsPossibles2(Plateau,Joueur,NewD,PreList),
+	Coup1 = [Joueur,Deplacement,R1,R2],
+	coup_possible(Coup1,Plateau),
+	List = [Coup1,[Joueur,Deplacement,R2,R1]|PreList].
 
-
+*/
 
 
 add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
@@ -427,22 +498,32 @@ qui(X):-
 alterner('j1', 'j2').
 alterner('j2', 'j1').
 
-jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),
-	repeat, 
-	boucle_JvsJ, !
+
+
+boucleJvsJ:- plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), repeat,  jVSj.
+
+
+jVSj:-  
+	plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),			%PROBLEME quand on sépart ce bout de code la boucle_JvsJ
+%	repeat, 
+	boucle_JvsJ
 	.
 
 boucle_JvsJ:-
-%	plateau_depart(Piles,Pos,Bourse,Res1,Res2),
+	plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+
+	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
+
+	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	
+	alterner(Joueur, JoueurSuiv),
+	write('JOUEUR SUIVANT'), write(JoueurSuiv)
 
 
-	delete_element([], Piles, P),		%on supprime les éventuelles piles vides
+	%write('ON EST ICIIII')
 
-
-
-	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]), !,
-
-	plateau(PlateauN, PosN, BN, Res1N, Res2N)
+%	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N)
 
 %	write(PlateauN)
 

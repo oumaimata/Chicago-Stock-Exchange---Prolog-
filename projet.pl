@@ -1,11 +1,11 @@
 
 % plateau arbitraire pour tester l'affichage : les 9 piles de 4 jetons, la position du trader, la bourse, J1R, J2R
 plateauTest([
-	[[ble,sucre,sucre,sucre],[ble, riz, riz, riz],[ble,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[ble,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[mais,cafe,cacao,mais]], 	
+	[[ble,sucre,sucre,sucre],[cafe, riz, cafe, riz],[cacao,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[ble,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[mais,cafe,cacao,mais]], 	
 	8,
-	[[ble,7],[riz,6],[cacao,6],[cafe,6],[sucre,6],[mais,6]],							
-	[],					
-	[]
+	[[ble,2],[riz,2],[cacao,3],[cafe,4],[sucre,5],[mais,6]],							
+	[mais, riz, riz, riz],					
+	[cacao, cacao, cafe, sucre]
 	]).
 
 
@@ -24,7 +24,7 @@ jetons([
 	mais, mais, mais, mais, mais, mais
 	]).
 
-deplacement([1, 2, 3]).
+deplacement([1, 2, 3]).		%
 
 %les piles sont des listes
 generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P):- 
@@ -233,14 +233,8 @@ affiche_position(X):-
 	write(X),
 	nl, nl,nl.									% position recalculée à partir de la précédente + 1, 2 ou 3
 
-
-
 affiche_J1Reserve(R1):- write('-------Réserve du Joueur 1-------'), nl, j1Reserve(R1),affiche_elements_liste(R1).
-
 affiche_J2Reserve(R2):- write('-------Réserve du Joueur 2-------'), nl, j2Reserve(R2),affiche_elements_liste(R2).
-
-
-
 
 
 
@@ -355,92 +349,109 @@ substitue(X,Y,[X|R],[Y|R1]):- substitue(X,Y,R,R1), !.
 substitue(X,Y,[Z|R],[Z|R1]):- X\==Y, substitue(X,Y,R,R1).
 
 
-%LANCER plateauTest([P, Pos, B, J1R, J2R]),coups_possibles([P, Pos, B, J1R, J2R], L).	
-%coups_possibles(Plateau, ListeCoupsPossibles).		6 coups possibles
-coups_possibles([P, Pos, B, J1R, J2R], L):-
-		Coup = [Joueur, Deplacement, Garde, Vend],
-		findall(Coup, coup_possible_ordi([P, Pos, B, J1R, J2R],Coup),L),
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), coups_possibles([P, Pos, B, J1R, J2R], Joueur, L).	
+%coups_possibles(Plateau, Joueur, ListeCoupsPossibles).		6 coups possibles, on inverse Garde et Vend pour 2 coups avec le même Déplacement
+coups_possibles([P, Pos, B, J1R, J2R], J, [C1, C2, C3, C4, C5, C6]):-
+		coup_possible_ordi([P, Pos, B, J1R, J2R], [J, 1, Garde1, Vend1]),
+		C1 = [J, 1, Garde1, Vend1],
+		C2 = [J, 1, Vend1, Garde1 ],
+		coup_possible_ordi([P, Pos, B, J1R, J2R], [J, 2, Garde2, Vend2]),
+		C3 = [J, 2, Garde2, Vend2],
+		C4 = [J, 2, Vend2, Garde2],
+		coup_possible_ordi([P, Pos, B, J1R, J2R], [J, 3, Garde3, Vend3]),
+		C5 = [J, 3, Garde3, Vend3],
+		C6 = [J, 3, Vend3, Garde3],
 
-		afficher(L)
+		write('Liste des coups possibles : '), nl,
+		write(C1),nl,
+		write(C2),nl,
+		write(C3),nl,
+		write(C4),nl,
+		write(C5),nl,
+		write(C6),nl
 	.
 
+%NON UTILISE FINALEMENT
+%coup_enrichir(Coup1, Score1, Coup2, Score2, MeilleurCoup, MeilleurScore).	%On compare les coups deux à deux
+coup_enrichir(Coup1, Score1, Coup2, Score2, Coup1, Score1):-	% si le coup1 est le meilleur coup
+		Score1 > Score2, !.
+coup_enrichir(Coup1, Score1, Coup2, Score2, Coup2, Score2).		% si le Coup2 est le meilleur coup
 
-coup_possible_ordi([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
-	deplacement(Deplacement),
-	Y is Pos + Deplacement,	
-	length(P, NbPiles), 	
-	modulo(Y, NbPiles, Pos2),	
-	affiche_piles(P, Pos2),
-	write('Nouvelle position du Trader : '), write(Pos2), nl,
-	positionPrec(Pos2, Prec, P),
-	positionSuiv(Pos2, Suiv, P),
-	write('Position précédente '), write(Prec), nl,
-	write('Position suivante '), write(Suiv), nl,
-	nieme(Prec, P, [Choix1|_]),
-	nieme(Suiv, P, [Choix2|_]),
-	Choix>=1, Choix=<2,
-	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
-	write('Céréale gardée : '), write(Garde), nl,
-	write('Céréale vendue : '), write(Vend), nl
+%	coup_appauvrir(). 		% A faire pour une autre stratégie que s'enrichir ?
+
+
+
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), affiche_bourse(B), nl, meilleur_coup([P, Pos, B, J1R, J2R], Joueur, [j1, D, Garde, Vend]).
+%meilleur_coup(+Plateau, Joueur, -Coup).
+meilleur_coup([P, Pos, B, J1R, J2R], Joueur, [Joueur, D, Garde, Vend]):-
+	coups_possibles([P, Pos, B, J1R, J2R], Joueur, [C1, C2, C3, C4, C5, C6]),
+	simuler_coup_ordi([P, Pos, B, J1R, J2R], C1, Score1),
+	simuler_coup_ordi([P, Pos, B, J1R, J2R], C2, Score2),
+	simuler_coup_ordi([P, Pos, B, J1R, J2R], C3, Score3),
+	simuler_coup_ordi([P, Pos, B, J1R, J2R], C4, Score4),
+	simuler_coup_ordi([P, Pos, B, J1R, J2R], C5, Score5),
+	simuler_coup_ordi([P, Pos, B, J1R, J2R], C6, Score6),
+
+	write('Liste des scores : '), nl,
+	write(Score1), tab(3), 
+	write(Score2), tab(3),  
+ 	write(Score3), tab(3),  
+	write(Score4), tab(3),  
+	write(Score5), tab(3),  
+	write(Score6), tab(3), nl,
+%	meilleur_score_coup([C1, C2, C3, C4, C5, C6], [Score1, Score2, Score3, Score4, Score5, Score6], MeilleurCoup, MeilleurScore):-
+	maximum_liste([Score1, Score2, Score3, Score4, Score5, Score6], MeilleurScore),
+	write('Le meilleur score est '), write(MeilleurScore)
+	
+	%il manque plus qu'a remonter au coup donnant le MeilleurScore
+
 	.
-/*
-coup_possible1([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend])
+
+%EN COURS. Il faudrait aller chercher le coup correspondant au Meilleure score
+meilleur_score_coup([C1, C2, C3, C4, C5, C6], ListeScores, MeilleurCoup, MeilleurScore):-
+	maximum_liste(ListeScores, MeilleurScore)
+.
+
+%recherche du coup ayant le score maximum après avoir été joué
+
+%LANCER maximum_liste([4,2,3,9,1], X).
+%maximum_liste(Liste, Max).
+maximum_liste([X], X).
+maximum_liste([T1, T2|Q], M):- T1 > T2, maximum_liste([T1|Q], M).
+maximum_liste([T1, T2|Q], M):- T2 >= T1, maximum_liste([T2|Q], M).
+
+
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), delete_element([], P, NP), affiche_piles(P, Pos), coup_possible_ordi([NP, Pos, B, J1R, J2R],[Joueur, 1, Garde, Vend]).
+%L'ordi (peu importe j1 ou j2) GARDE la céréale précédente, et VEND la suivante
+coup_possible_ordi([P, Pos, B, J1R, J2R], [_, Deplacement, Garde, Vend]):-
 	Y is Pos + Deplacement,	
-	length(P, NbPiles), 	
+	length(P, NbPiles),
 	modulo(Y, NbPiles, Pos2),	
-	affiche_piles(P, Pos2),			
-	write('Nouvelle position du Trader : '), write(Pos2), nl,
 	positionPrec(Pos2, Prec, P),
 	positionSuiv(Pos2, Suiv, P),
-	write('Position précédente '), write(Prec), nl,
-	write('Position suivante '), write(Suiv), nl,
 	nieme(Prec, P, [Garde|_]),
-	nieme(Suiv, P, [Vend|_]),
-	write('Céréale gardée : '), write(Garde), nl,
-	write('Céréale vendue : '), write(Vend), nl.
+	nieme(Suiv, P, [Vend|_])
+	.
 
-coup_possible2([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend])
-	Y is Pos + Deplacement,	
-	length(P, NbPiles), 	
-	modulo(Y, NbPiles, Pos2),	
-	affiche_piles(P, Pos2),			
-	write('Nouvelle position du Trader : '), write(Pos2), nl,
-	positionPrec(Pos2, Prec, P),
-	positionSuiv(Pos2, Suiv, P),
-	write('Position précédente '), write(Prec), nl,
-	write('Position suivante '), write(Suiv), nl,
-	nieme(Suiv, P, [Garde|_]),
-	nieme(Prec, P, [Vend|_]),
-	write('Céréale gardée : '), write(Garde), nl,
-	write('Céréale vendue : '), write(Vend), nl.
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), simuler_coup_ordi([P, Pos, B, J1R, J2R],[j1, 2, sucre, riz], Score).
+% l'IA simule un coup et calcule le score du Joueur concerné
+simuler_coup_ordi([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], Score):-
+	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
+	Y is Pos + D,
+	length(Ptemp, NbPiles),	
+	modulo(Y, NbPiles, Pos2),				
+	write(Pos2), nl,
+	add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2),
+	write('Réserve du Joueur 1 :'), write(J1R2), nl,
+	write('Réserve du Joueur 2 :'), write(J2R2), nl,
+	bourse_sortie([Vend, Valeur], B, B2),
+	affiche_bourse(B), nl,
+	affiche_bourse(B2), nl, 
+	score_joueur(Joueur, B2, J1R2, J2R2, Score)
+%	write('Score après le coup joué '), write(Score)
+	.
 
-%	findall(X, (X,[Joueur, _, Garde1, Vend1]), L)
-%coups_possibles([P, Pos, B, J1R, J2R], [[Joueur, 1, Garde1, Vend1], [Joueur, 2, Garde1, Vend1], [Joueur, 3, Garde1, Vend1]]):-
 
-
-/*Determine tous les coups possibles en fonctions de l'état du jeu
-coups_possibles(Plateau+,JoueurQuiDoitJouer+,ListeDeCoupsPossibles-)*/
-/*
-coups_possibles(Plateau,Joueur,Liste):-
-	coupsPossibles2(Plateau,Joueur,3,Liste).
-
-*/
-/*Determine tous les coups possibles de manière récursive
-coupsPossibles2(Plateau+,JoueurQuiDoitJouer+,DeplacementDuJoueur+,ListeDeCoupsPossibles-)*/
-/*
-coupsPossibles2(Plateau,Joueur,1,List):-
-	Coup1 = [Joueur,1,R1,R2],
-	coup_possible(Coup1,Plateau),
-	List = [[Joueur,1,R2,R1], Coup1].
-coupsPossibles2(Plateau,Joueur,Deplacement,List):-
-	Deplacement > 1,
-	NewD is Deplacement - 1,
-	coupsPossibles2(Plateau,Joueur,NewD,PreList),
-	Coup1 = [Joueur,Deplacement,R1,R2],
-	coup_possible(Coup1,Plateau),
-	List = [Coup1,[Joueur,Deplacement,R2,R1]|PreList].
-
-*/
 
 
 add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
@@ -461,16 +472,26 @@ score_Elt(Elt, Bourse, S):-
 	element([Elt, Valeur], Bourse),
 	S is Valeur.
 
-%LANCER bourse(B), score_joueur([ble, riz, cacao], B, S).
+%LANCER bourse(B), score_reserve([ble, riz, cacao, ble, ble], B, Score).
 %Calcule le score d'un joueur à partir de sa réserve et de l'état de la Bourse actuelle
-%score_joueur(ReserveJoueur, BourseActuelle, Score)
-score_joueur([], BourseActuelle, 0).
-score_joueur([T|Q], BourseActuelle, Score):-
+%score_reserve(ReserveJoueur, BourseActuelle, Score)
+score_reserve([], BourseActuelle, 0).
+score_reserve([T|Q], BourseActuelle, Score):-
 	score_Elt(T, BourseActuelle, S),
-	score_joueur(Q, BourseActuelle, SM),
+	score_reserve(Q, BourseActuelle, SM),
 	Score is S + SM
 	.
 
+%LANCER bourse(B), score_joueur(j1, B, [ble, riz, cacao, ble, ble], [], Score).
+score_joueur(Joueur, Bourse, J1R, J2R, Score):-
+	Joueur=='j1',
+	score_reserve(J1R, Bourse, Score), !
+	.
+
+score_joueur(Joueur, Bourse, J1R, J2R, Score):-
+	Joueur=='j2',
+	score_reserve(J2R, Bourse, Score)
+	.	
 
 
 % LANCER generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P), nbPiles(P, X).

@@ -1,10 +1,10 @@
 
 % plateau arbitraire pour tester l'affichage : les 9 piles de 4 jetons, la position du trader, la bourse, J1R, J2R
 plateauTest([
-	[[ble,sucre,sucre,sucre],[cafe, riz, cafe, riz],[cacao,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[ble,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[mais,cafe,cacao,mais]], 	
+	[[sucre,ble,cacao,sucre],[cafe, riz, cafe, riz],[cacao,ble,riz,sucre],[sucre,riz,cafe,mais],[cafe,cafe,mais,cafe],[sucre,cacao,cacao,cacao],[riz,mais,mais,cacao],[riz,ble,sucre,cafe],[ble,cafe,mais,mais]], 	
 	8,
 	[[ble,2],[riz,2],[cacao,3],[cafe,4],[sucre,5],[mais,6]],							
-	[mais, riz, riz, riz],					
+	[ble, riz, cacao, sucre],					
 	[cacao, cacao, cafe, sucre]
 	]).
 
@@ -74,6 +74,7 @@ choose(List, Elt) :-
         length(List, Length),
         random(0, Length, Index),
         nth0(Index, List, Elt).
+
 
 nth0(0,[X|_], X):-!.
 nth0(Index,[_|List], X):- Index>0, Index1 is Index-1, nth0(Index1,List, X).
@@ -381,9 +382,10 @@ coup_enrichir(Coup1, Score1, Coup2, Score2, Coup2, Score2).		% si le Coup2 est l
 
 
 
-%LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), affiche_bourse(B), nl, meilleur_coup([P, Pos, B, J1R, J2R], Joueur, [j1, D, Garde, Vend]).
-%meilleur_coup(+Plateau, Joueur, -Coup).
-meilleur_coup([P, Pos, B, J1R, J2R], Joueur, [Joueur, D, Garde, Vend]):-
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), affiche_bourse(B), nl, meilleur_coup([P, Pos, B, J1R, J2R], [j1, D, Garde, Vend]).
+%on simule les 6 coups pour avoir leur score associé, on détermine le plus élevé, puis on trouve le coup associé.
+%meilleur_coup(+Plateau, -Coup).
+meilleur_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]):-
 	coups_possibles([P, Pos, B, J1R, J2R], Joueur, [C1, C2, C3, C4, C5, C6]),
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C1, Score1),
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C2, Score2),
@@ -393,26 +395,18 @@ meilleur_coup([P, Pos, B, J1R, J2R], Joueur, [Joueur, D, Garde, Vend]):-
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C6, Score6),
 
 	write('Liste des scores : '), nl,
-	write(Score1), tab(3), 
-	write(Score2), tab(3),  
- 	write(Score3), tab(3),  
-	write(Score4), tab(3),  
-	write(Score5), tab(3),  
-	write(Score6), tab(3), nl,
-%	meilleur_score_coup([C1, C2, C3, C4, C5, C6], [Score1, Score2, Score3, Score4, Score5, Score6], MeilleurCoup, MeilleurScore):-
+	write(Score1), tab(3), write(Score2), tab(3), write(Score3), tab(3), write(Score4), tab(3), write(Score5), tab(3), write(Score6), tab(3), nl,
 	maximum_liste([Score1, Score2, Score3, Score4, Score5, Score6], MeilleurScore),
-	write('Le meilleur score est '), write(MeilleurScore)
-	
-	%il manque plus qu'a remonter au coup donnant le MeilleurScore
+	ListeCoupsScores = [[C1, Score1], [C2, Score2], [C2, Score2], [C3, Score3], [C4, Score4], [C5, Score5], [C6, Score6]],
 
+	%on cherche MeilleurCoup à partir de MeilleurScore dans la liste précédente
+	element([MeilleurCoup, MeilleurScore], ListeCoupsScores),
+	write('Le meilleur score est '), write(MeilleurScore),
+	nl, write('Le meilleur coup est '), write(MeilleurCoup), nl,
+	[Joueur, D, Garde, Vend] = MeilleurCoup
+%	write(Joueur), write(D), write(Garde), write(Vend)
 	.
 
-%EN COURS. Il faudrait aller chercher le coup correspondant au Meilleure score
-meilleur_score_coup([C1, C2, C3, C4, C5, C6], ListeScores, MeilleurCoup, MeilleurScore):-
-	maximum_liste(ListeScores, MeilleurScore)
-.
-
-%recherche du coup ayant le score maximum après avoir été joué
 
 %LANCER maximum_liste([4,2,3,9,1], X).
 %maximum_liste(Liste, Max).
@@ -440,15 +434,15 @@ simuler_coup_ordi([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], Score):-
 	Y is Pos + D,
 	length(Ptemp, NbPiles),	
 	modulo(Y, NbPiles, Pos2),				
-	write(Pos2), nl,
+%	write(Pos2), nl,
 	add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2),
-	write('Réserve du Joueur 1 :'), write(J1R2), nl,
-	write('Réserve du Joueur 2 :'), write(J2R2), nl,
+%	write('Réserve du Joueur 1 :'), write(J1R2), nl,
+%	write('Réserve du Joueur 2 :'), write(J2R2), nl,
 	bourse_sortie([Vend, Valeur], B, B2),
-	affiche_bourse(B), nl,
-	affiche_bourse(B2), nl, 
+%	affiche_bourse(B), nl,
+%	affiche_bourse(B2), nl, 
 	score_joueur(Joueur, B2, J1R2, J2R2, Score)
-%	write('Score après le coup joué '), write(Score)
+%	write('Score après le coup joué '), write(Score), nl
 	.
 
 

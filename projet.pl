@@ -518,29 +518,43 @@ alterner('j2', 'j1').
 boucleJvsJ:- plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), repeat,  jVSj.
 
 
-jVSj:-  
-	plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),			%PROBLEME quand on sépart ce bout de code la boucle_JvsJ
-%	repeat, 
-	boucle_JvsJ
-	.
+%no more connexion problem between jVSj and boucle_JvsJ
+
+jVSj:-  repeat, boucle_JvsJ,!.
+
+/*finalement j'ai gardé les j1/j2, et une seul boucle jouer_coup, ça joue bien pour le premier joueur, ca rejoue aussi sur le nouveau plateau(gd news)
+mais ca ne rentre pas dans le dernier jouer_coup de la boucle*/
 
 boucle_JvsJ:-
-	plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),
-	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
 
-	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
+	plateau_depart([P, Pos, B, J1R, J2R]), 
+	qui(Joueur),
 
-	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	coup_possible([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]),
+
+	jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]),
+
+	write('ON EST ICIIII'),
+
+	%delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie 
+
 	
 	alterner(Joueur, JoueurSuiv),
-	write('JOUEUR SUIVANT'), write(JoueurSuiv)
 
+	%Joueur is JoueurSuiv.
 
-	%write('ON EST ICIIII')
+	%plateauEnCours([NP, Pos2, B2, J1R2, J2R2]),
+	write([NP, Pos2, B2, J1R2, J2R2]),
+	%JoueurSuiv is Joueur+1,
+	%modulo(Joueur, 2, JoueurSuiv),
+	write('JOUEUR SUIVANT: '), write(JoueurSuiv), nl,
+	coup_possible([NP, Pos2, B2, J1R2, J2R2], [JoueurSuiv, D, Garde, Vend]),
+	jouer_coup([NP, Pos2, B2, J1R2, J2R2], [JoueurSuiv, D, Garde, Vend], [NP2, Pos22, B22, J1R22, J2R22])
+	.	
 
-%	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N)
+%	
 
-%	write(PlateauN)
+%	
 
 %	nb_Piles(PlateauN, NBPILES), !,
 
@@ -552,7 +566,14 @@ boucle_JvsJ:-
 %	compte()
 
 
-	.
+
+/* (Joueur == 1 ->
+		(coup_possible(Plateau,Coup));	
+		JoueurSuiv is 2;
+	%Si c'est le tour du joueur 2 
+		(coup_possible(Plateau,Coup));
+		JoueurSuiv is 1), */
+
 
 
 

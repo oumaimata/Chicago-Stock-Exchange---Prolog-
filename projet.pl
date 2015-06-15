@@ -664,6 +664,68 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 	.
 
+jVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), 
+	%qui(Joueur), nl, nl,
+	write('****TOUR DU JOUEUR '), write('****'), nl,nl,
+	boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur), 
+%	nb_Piles(Piles, NBPILES),nl, write('NOMBRE DE PILES : '), write(NBPILES),
+	!
+.
+
+%boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], 'j1'):- boucle_JvsIAH([Piles,Pos,Bourse,Res1,Res2], Joueur).
+%boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], 'j2'):- boucle_JvsIAM([Piles,Pos,Bourse,Res1,Res2], Joueur).
+
+
+
+boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):- 
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+	nb_Piles(Piles, NBPILES), NBPILES=<2, 
+	write('***************Partie terminée***************'), nl,nl,	
+	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
+	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
+	alterner(Joueur, Joueur2),
+	gagnant(Score1, Score2), !
+
+	.
+
+boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+	delete_element([], Piles, P),    %on supprime les éventuelles piles vides et on renvoie P
+	coup_possible([P, Pos, Bourse, Res1, Res2], ['j1', Deplacement, Garde, Vend]),
+	jouer_coup([P, Pos, Bourse, Res1, Res2], ['j1', Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	nl,nl,nl,nl,
+	alterner(Joueur, JoueurSuiv),
+	write('****TOUR DE L IA '), write('****'), nl,nl,nl,
+	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl,	
+
+	meilleur_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, Deplacement, Garde, Vend]),
+	jouer_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, Deplacement, Garde, Vend], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
+	nl,nl,nl,nl,
+	alterner(JoueurSuiv, JoueurSuiv2),
+	write('****TOUR DU JOUEUR '), write('****'), nl,nl,nl,
+	plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
+
+	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv2)
+	.
+
+/*boucle_JvsIAm([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+	Joueur=='j1',
+	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend])
+	.
+
+boucle_JvsIAm([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+	Joueur=='j2',
+	meilleur_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend])
+	.
+*/
+
+
+/* (Joueur == 1 ->
+		(coup_possible(Plateau,Coup));	
+		JoueurSuiv is 2;
+	%Si c'est le tour du joueur 2 
+		(coup_possible(Plateau,Coup));
+		JoueurSuiv is 1), */
+
 
 
 

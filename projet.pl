@@ -309,8 +309,6 @@ cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 %décrémente la céréale vendue, et retourne le nouveau plateau avec les 2 jetons de moins (et supprime les éventuelles listes vides)
 % jouer_coup(+PlateauInitial, ?Coup, ?NouveauPlateau)
 
-jouerCoup:- jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]).
-
 jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
 %	write('********************JOUER COUP*******************'), nl,
 	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
@@ -362,16 +360,16 @@ coups_possibles([P, Pos, B, J1R, J2R], J, [C1, C2, C3, C4, C5, C6]):-
 		C4 = [J, 2, Vend2, Garde2],
 		coup_possible_ordi([P, Pos, B, J1R, J2R], [J, 3, Garde3, Vend3]),
 		C5 = [J, 3, Garde3, Vend3],
-		C6 = [J, 3, Vend3, Garde3],
+		C6 = [J, 3, Vend3, Garde3]
 
-		write('Liste des coups possibles : '), nl,
+/*		write('Liste des coups possibles : '), nl,
 		write(C1),nl,
 		write(C2),nl,
 		write(C3),nl,
 		write(C4),nl,
 		write(C5),nl,
 		write(C6),nl
-	.
+*/	.
 
 %NON UTILISE FINALEMENT
 %coup_enrichir(Coup1, Score1, Coup2, Score2, MeilleurCoup, MeilleurScore).	%On compare les coups deux à deux
@@ -504,8 +502,8 @@ compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .
 
 
 qui(X):-
-	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
-	write('Qui joue : j1 ou j2 ?'),
+%	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
+	write('Quel joueur commence : j1 ou j2 ?'),
 	read(X)
 %	X = 'j1', X = 'j2'			%erreur, si je test que j1 ça boucle bien, mais pour tester deux résultats : non
 	.
@@ -536,9 +534,7 @@ gagnant(Score1, Score2):-
 jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), nl, nl,
 	write('****TOUR DU JOUEUR '), write(Joueur), write('****'), nl,nl,
 	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur), nb_Piles(Piles, NBPILES), 
-	!	
-	%write(NBPILES),
-	%NBPILES=2,!
+	!
 .
 
 % boucle_JvsJ dans le cas où la fin du jeu est atteinte
@@ -569,6 +565,41 @@ boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	.
 
 
+
+iaVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), nl, nl,
+	write('****TOUR DU JOUEUR '), write(Joueur), write('****'), nl,nl,
+	boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur), 
+%	nb_Piles(Piles, NBPILES),nl, write('NOMBRE DE PILES : '), write(NBPILES),
+	!
+.
+
+% boucle_IAvsIA dans le cas où la fin du jeu est atteinte
+boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):- 
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+	nb_Piles(Piles, NBPILES), NBPILES=<2, 
+	write('***************Partie terminée***************'), nl,nl,
+	
+	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
+	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
+	alterner(Joueur, Joueur2),
+	gagnant(Score1, Score2)
+
+	.
+
+boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+
+	meilleur_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
+
+	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	nl,nl,nl,nl,
+	alterner(Joueur, JoueurSuiv),
+	write('****TOUR DU JOUEUR '), write(JoueurSuiv), write('****'), nl,nl,nl,
+	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl,
+	
+	boucle_IAvsIA([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv)
+
+	.
 
 
 

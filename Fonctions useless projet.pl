@@ -165,4 +165,59 @@ score_joueur([T|Q], BourseActuelle, Score):-
 maximum(X, Y, X):- Y=<X, !.
 maximum(X, Y, Y).
 
+
+%LANCER supprimeElement([[mais],[cafe,riz],[cacao],[riz,cafe,sucre],[cacao],[cacao,cafe,cafe],[ble],[mais,ble],[riz,sucre]], 5, P2).
+% Prédicat permettant de supprimer la tête de la ième sous-liste et de renvoyer la liste modifiée
+supprimeElement([[_|R]|Queue],1,[R|Queue]):-!.
+    supprimeElement([Tete|Queue],PositionRelativeSousListe,[Tete|R]):-
+    NewPositionRelativeSousListe is PositionRelativeSousListe-1,
+    supprimeElement(Queue,NewPositionRelativeSousListe,R).
+
+
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), jouer_coup([P, Pos, B, J1R, J2R],[j1, 2, sucre, riz],[P2, Pos2, B2, J1R2, J2R2]).
+
+%jouer_coup additionne le déplacement du Trader à la position initiale, modifie la réserve du joueur qui joue,
+%décrémente la céréale vendue, et retourne le nouveau plateau avec les 2 jetons de moins (et supprime les éventuelles listes vides)
+% jouer_coup(+PlateauInitial, ?Coup, ?NouveauPlateau)
+
+jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos3, B2, J1R2, J2R2]):-
+%	write('********************JOUER COUP*******************'), nl,
+	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
+	Y is Pos + D,
+	length(Ptemp, NbPiles),	
+	modulo(Y, NbPiles, Pos2),				
+%	write(Pos2), nl,
+	add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2),
+	write('Réserve du Joueur 1 :'), write(J1R2), nl,
+	write('Réserve du Joueur 2 :'), write(J2R2), nl,
+	bourse_sortie([Vend, Valeur], B, B2),
+	affiche_bourse(B), nl,					%affiche l'ancienne bourse
+	affiche_bourse(B2), nl, 				%affiche la nouvelle bourse
+	positionPrec(Pos2, Prec, Ptemp),
+	positionSuiv(Pos2, Suiv, Ptemp),
+
+	nl, write('Avant de suppr le prec'), nl,
+	del_first(Prec, Ptemp, Ptemp2),
+
+	nl, write('Après avoir suppr le prec'), nl,
+	nl, write(Ptemp2), nl,
+
+	nl, write('Avant de suppr le suiv'), nl,			
+	del_first(Suiv, Ptemp2, Ptemp3),
+
+	nl, write('Après avoir suppr le suiv'), nl,
+	nl, write(Ptemp3), nl,
+
+	delete_element([], Ptemp3, NP),				%le nombre de piles vides supprimées change la position du trader
+	nl, write('SOUS ICI3'), nl,
+
+	write('Apres avoir retirer les listes vides'), write(NP),
+	length(NP, NbPiles),						%PROBLEME ici	
+	modulo(Pos2, NbPiles, Pos3),
+						
+	write(NP)						%affiche les piles du plateauTest TO COMMENT 
+%	affiche_piles(Ptemp, Pos), nl,
+%	affiche_piles(NP, Pos2)
+	.
+
 	

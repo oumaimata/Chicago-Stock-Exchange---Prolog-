@@ -234,8 +234,8 @@ affiche_position(X):-
 	write(X),
 	nl, nl,nl.									% position recalculée à partir de la précédente + 1, 2 ou 3
 
-affiche_J1Reserve(R1):- write('-------Réserve du Joueur 1-------'), nl, j1Reserve(R1),affiche_elements_liste(R1).
-affiche_J2Reserve(R2):- write('-------Réserve du Joueur 2-------'), nl, j2Reserve(R2),affiche_elements_liste(R2).
+affiche_J1Reserve(R1):- write('-------Réserve du Joueur 1-------'), nl, affiche_elements_liste(R1).
+affiche_J2Reserve(R2):- write('-------Réserve du Joueur 2-------'), nl, affiche_elements_liste(R2).
 
 
 
@@ -252,15 +252,16 @@ plateau_depart(M, Pos, B, R1,R2):-
 plateau:-[M, Pos, B, R1, R2].
 
 
-plateauEncours(M,P, B, R1,R2):- 
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), plateauEncours(P,Pos, B, J1R,J2R).
+plateauEncours(M,P, B, J1R,J2R):- 
 	affiche_piles(M, P), nl,
 	write('-------Bourse-------'), nl,
-	bourse(B),
 	affiche_bourse(B), nl,
-	affiche_J1Reserve(R1), nl,
-	affiche_J2Reserve(R2), nl
+	affiche_J1Reserve(J1R), nl,
+	affiche_J2Reserve(J2R), nl
 	.
 	
+%affiche_J1Reserve([ble, riz, cacao, sucre]).	
 
 positionPrec(1, X, List):- length(List, X).
 positionPrec(Pos, NPos, List):- NPos is Pos-1.
@@ -316,7 +317,7 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 	Y is Pos + D,
 	length(Ptemp, NbPiles),	
 	modulo(Y, NbPiles, Pos2),				
-	write(Pos2), nl,
+%	write(Pos2), nl,
 	add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2),
 	write('Réserve du Joueur 1 :'), write(J1R2), nl,
 	write('Réserve du Joueur 2 :'), write(J2R2), nl,
@@ -515,52 +516,55 @@ alterner('j2', 'j1').
 
 
 
-boucleJvsJ:- plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), repeat,  jVSj.
-
 
 %no more connexion problem between jVSj and boucle_JvsJ
 
-jVSj:-  repeat, boucle_JvsJ,!.
+%jVSj:-  repeat, boucle_JvsJ,!.
 
 /*finalement j'ai gardé les j1/j2, et une seul boucle jouer_coup, ça joue bien pour le premier joueur, ca rejoue aussi sur le nouveau plateau(gd news)
 mais ca ne rentre pas dans le dernier jouer_coup de la boucle*/
 
-boucle_JvsJ:-
+jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), 
 
-	plateau_depart([P, Pos, B, J1R, J2R]), 
-	qui(Joueur),
 
-	coup_possible([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]),
+boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur),!
 
-	jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]),
+.
 
-	write('ON EST ICIIII'),
+boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+%	plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
 
-	%delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie 
+	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
 
+	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
 	
+
+
+	nl,nl,nl,nl,write('Fin du premier coup'), nl,
+
+	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), 
+
 	alterner(Joueur, JoueurSuiv),
+	write('JOUEUR SUIVANT'), write(JoueurSuiv),
 
-	%Joueur is JoueurSuiv.
+	nb_Piles(PlateauN, NBPILES), 
+	!,	
+	write(write(NBPILES),
+	
+	NBPILES=2, 				% condition d'arrêt : 2 piles
 
-	%plateauEnCours([NP, Pos2, B2, J1R2, J2R2]),
-	write([NP, Pos2, B2, J1R2, J2R2]),
-	%JoueurSuiv is Joueur+1,
-	%modulo(Joueur, 2, JoueurSuiv),
-	write('JOUEUR SUIVANT: '), write(JoueurSuiv), nl,
-	coup_possible([NP, Pos2, B2, J1R2, J2R2], [JoueurSuiv, D, Garde, Vend]),
-	jouer_coup([NP, Pos2, B2, J1R2, J2R2], [JoueurSuiv, D, Garde, Vend], [NP2, Pos22, B22, J1R22, J2R22])
-	.	
+	boucle_JvsJ([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv)
 
-%	
 
-%	
 
-%	nb_Piles(PlateauN, NBPILES), !,
+	.
+
+
+
 
 %	alterner(JoueurPrec, Joueur),
 
-%	NBPILES=2,				% condition d'arrêt : 2 piles 
 
 %	write('Partie Terminée')
 %	compte()

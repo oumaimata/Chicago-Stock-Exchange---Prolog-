@@ -320,15 +320,15 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 	write('Réserve du Joueur 1 :'), write(J1R2), nl,
 	write('Réserve du Joueur 2 :'), write(J2R2), nl,
 	bourse_sortie([Vend, Valeur], B, B2),
-	affiche_bourse(B), nl,
-	affiche_bourse(B2), nl, 
+	affiche_bourse(B), nl,					%affiche l'ancienne bourse
+	affiche_bourse(B2), nl, 				%affiche la nouvelle bourse
 	positionPrec(Pos2, Prec, Ptemp),
 	positionSuiv(Pos2, Suiv, Ptemp),
 
 	del_first(Prec, Ptemp, P1), 
 	del_first(Suiv, P1, P2),
-	delete_element([], P2, NP)							
-%	write(P2),
+	delete_element([], P2, NP),						
+	write(NP)					%affiche les piles du plateau
 %	affiche_piles(Ptemp, Pos), nl,
 %	affiche_piles(NP, Pos2)
 	.
@@ -393,7 +393,7 @@ meilleur_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]):-
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C5, Score5),
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C6, Score6),
 
-	write('Liste des scores : '), nl,
+	write('ICI'), write('Liste des scores : '), nl,
 	write(Score1), tab(3), write(Score2), tab(3), write(Score3), tab(3), write(Score4), tab(3), write(Score5), tab(3), write(Score6), tab(3), nl,
 	maximum_liste([Score1, Score2, Score3, Score4, Score5, Score6], MeilleurScore),
 	ListeCoupsScores = [[C1, Score1], [C2, Score2], [C2, Score2], [C3, Score3], [C4, Score4], [C5, Score5], [C6, Score6]],
@@ -504,8 +504,9 @@ compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .
 qui(X):-
 %	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
 	write('Quel joueur commence : j1 ou j2 ?'),
-	read(X)
+	read(X),
 %	X = 'j1', X = 'j2'			%erreur, si je test que j1 ça boucle bien, mais pour tester deux résultats : non
+	!
 	.
 
 
@@ -527,7 +528,7 @@ gagnant(Score1, Score2):-
 
 %Cas où les 2 scores sont égaux
 gagnant(Score1, Score2):-
-	write('Les deux joueurs terminent à égalité')
+	write('Les deux joueurs terminent à égalité avec un score de '), write(Score1), write(' et '), write(Score2)
 	.
 
 
@@ -546,7 +547,7 @@ boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
 	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
 	alterner(Joueur, Joueur2),
-	gagnant(Score1, Score2)
+	gagnant(Score1, Score2), !
 
 	.
 
@@ -582,7 +583,7 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
 	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
 	alterner(Joueur, Joueur2),
-	gagnant(Score1, Score2)
+	gagnant(Score1, Score2), !
 
 	.
 

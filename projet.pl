@@ -96,7 +96,7 @@ delete_element(X, [X|R], R1):- delete_element(X, R, R1).
 delete_element(X, [Y|R], [Y|R1]):- X\=Y, delete_element(X, R, R1).
 
 
-
+%LANCER plateauTest([P, Pos, B, J1R, J2R]), del_first(2, P, P2).
 %Supprime le premier élément d'une sous liste d'indice I d'une liste  et renvoie la nouvelle Liste
 del_first(_, [], []).
 del_first(I, P, P2):-
@@ -244,7 +244,7 @@ plateau_depart(M, Pos, B, R1,R2):-
 	affiche_piles_ini_trad(M, Pos), nl,
 	write('-------Bourse-------'), nl,
 	bourse(B),
-	affiche_bourse(B), nl,
+	affiche_bourse(B), nl, nl,
 	affiche_J1Reserve(R1), nl,
 	affiche_J2Reserve(R2), nl
 	.
@@ -274,24 +274,24 @@ positionSuiv(Pos, NPos, List):- NPos is Pos+1.
 % LANCER plateauTest([P, Pos, B, J1R, J2R]), delete_element([], P, NP), affiche_piles(P, Pos), coup_possible([NP, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
 %coup_possible(Plateau, Coup)
 coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
-	write('********************COUP POSSIBLE*******************'), nl,
+%	write('********************COUP POSSIBLE*******************'), nl,
 	repeat,
 	write('Entrez un déplacement (1, 2 ou 3) : '),
-	read(Deplacement), Deplacement>=1, Deplacement =< 3, 
+	read(Deplacement), Deplacement>=1, Deplacement =<3, 
 	Y is Pos + Deplacement,	
 	length(P, NbPiles), 	
 	modulo(Y, NbPiles, Pos2),	
 	affiche_piles(P, Pos2),			
-	write('Nouvelle position du Trader : '), write(Pos2), nl,
+%	write('Nouvelle position du Trader : '), write(Pos2), nl,
 	positionPrec(Pos2, Prec, P),
 	positionSuiv(Pos2, Suiv, P),
-	write('Position précédente '), write(Prec), nl,
-	write('Position suivante '), write(Suiv), nl,
+%	write('Position précédente '), write(Prec), nl,
+%	write('Position suivante '), write(Suiv), nl,
 	nieme(Prec, P, [Choix1|_]),
 	nieme(Suiv, P, [Choix2|_]),
-	write('Quelle céréale voulez-vous Garder ?'),
-%	repeat,
-	write(' Tapez 1 pour prendre de la pile Précédente '), write(Choix1), nl, write(' ou Tapez 2 pour prendre de la pile Suivante '), write(Choix2), write(' : '),
+	nl, write('Quelle céréale voulez-vous Garder ?'), nl,
+	repeat,
+	write(' Tapez 1 pour prendre de la pile Précédente le '), write(Choix1), nl, write(' ou Tapez 2 pour prendre de la pile Suivante le '), write(Choix2), write(' : '),
 	read(Choix), Choix>=1, Choix=<2,
 	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
 	write('Céréale gardée : '), write(Garde), nl,
@@ -312,7 +312,7 @@ cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 jouerCoup:- jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]).
 
 jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
-	write('********************JOUER COUP*******************'), nl,
+%	write('********************JOUER COUP*******************'), nl,
 	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
 	Y is Pos + D,
 	length(Ptemp, NbPiles),	
@@ -504,68 +504,74 @@ compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .
 
 
 qui(X):-
-%	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
+	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
 	write('Qui joue : j1 ou j2 ?'),
-%	qui\= 'j1', qui\= 'j2',
-	read(X).
+	read(X)
+%	X = 'j1', X = 'j2'			%erreur, si je test que j1 ça boucle bien, mais pour tester deux résultats : non
+	.
 
 
 %alterner(JoueurActuel, Joueur Suivant).
 alterner('j1', 'j2').
 alterner('j2', 'j1').
 
+gagnant(Score1, Score2):-
+	Score1>Score2,
+	write('Le joueur 1 a gagné avec un score de '), write(Score1), nl,
+	write('Le joueur 2 a perdu avec un score de '), write(Score2), nl, !
+	.
+
+gagnant(Score1, Score2):-
+	Score2>Score1,
+	write('Le joueur 2 a gagné avec un score de '), write(Score2), nl,
+	write('Le joueur 1 a perdu avec un score de '), write(Score1), nl, !
+	.
+
+%Cas où les 2 scores sont égaux
+gagnant(Score1, Score2):-
+	write('Les deux joueurs terminent à égalité')
+	.
 
 
-
-%no more connexion problem between jVSj and boucle_JvsJ
-
-%jVSj:-  repeat, boucle_JvsJ,!.
-
-/*finalement j'ai gardé les j1/j2, et une seul boucle jouer_coup, ça joue bien pour le premier joueur, ca rejoue aussi sur le nouveau plateau(gd news)
-mais ca ne rentre pas dans le dernier jouer_coup de la boucle*/
-
-
-jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), 
+jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), nl, nl,
+	write('****TOUR DU JOUEUR '), write(Joueur), write('****'), nl,nl,
 	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur), nb_Piles(Piles, NBPILES), 
 	!	
 	%write(NBPILES),
 	%NBPILES=2,!
 .
 
-boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):- nb_Piles(Piles, NBPILES), NBPILES=2, write('partie finie').
-boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
-%	plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),
+% boucle_JvsJ dans le cas où la fin du jeu est atteinte
+boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):- 
 	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
-
-	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
-
-	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	nb_Piles(Piles, NBPILES), NBPILES=<2, 
+	write('***************Partie terminée***************'), nl,nl,
 	
+	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
+	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
+	alterner(Joueur, Joueur2),
+	gagnant(Score1, Score2)
+
+	.
 
 
-	nl,nl,nl,nl,write('Fin du premier coup'), nl,
-
-	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), 
-
+boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
+	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	nl,nl,nl,nl,
 	alterner(Joueur, JoueurSuiv),
-	write('JOUEUR SUIVANT'), nl, write(JoueurSuiv),
-
-					
-
+	write('****TOUR DU JOUEUR '), write(JoueurSuiv), write('****'), nl,nl,nl,
+	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl,
+	
 	boucle_JvsJ([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv)
-
-
 
 	.
 
 
 
 
-%	alterner(JoueurPrec, Joueur),
 
-
-%	write('Partie Terminée')
-%	compte()
 
 
 

@@ -1,6 +1,6 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\rtf1\ansi\ansicpg1252\cocoartf1347\cocoasubrtf570
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;\red255\green39\blue18;\red134\green205\blue77;}
+{\colortbl;\red255\green255\blue255;\red255\green39\blue18;}
 \paperw11900\paperh16840\margl1440\margr1440\vieww11620\viewh9280\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
@@ -37,32 +37,33 @@ G\'e9rer
 \b0  : \
 meilleur_coup : S\'92ENRICHIR. Si deux coups ont le m\'eame score, celui qui est choisi est le premier dans la liste des coups possibles\
 \
-A faire : \
 \
-\cf2 Boucle JvsJ : on fait la 1\'e8re it\'e9ration, mais on arrive pas \'e0 boucler\
+
+\b A faire
+\b0  : \
+\
+\cf2 Boucle_iaVSia\
+Boucle_jVSia\
 \cf0 \
 Interface Homme_Machine et Machine/Machine :\
-Cr\'e9er un menu pour les trois types de jeu\
+\
+Cr\'e9er un menu pour choisir un des 3 types de partie\
 \
 \
 
 \b PROB
 \b0  :\
 \
-Affichage Trader avec une pile vide (elle est prise en compte quand m\'eame).\
+Le Trader ne s\'92affiche pas quelques fois !!! (apr\'e8s suppression de pile vide)\
 \
-Si m\'eame c\'e9r\'e9ale sur les piles adjacentes, savoir laquelle appartient \'e0 quelle pile pour vendre et garder : \cf2 plus besoin de se pr\'e9occuper de \'e7a ?\cf0 \
-\
-Cr\'e9er une variable nombre de piles (qui se d\'e9cr\'e9mentera lorsqu\'92une pile est vide) \
-\cf3 pq pas mettre le pr\'e9dicat de suppression de pile vide dans le nb_pile et n\'92utiliser que ce dernier?  \cf2 Oui j\'92avais pas vu qu\'92il restait cette phrase\cf0 \
-\
-\
-\
+Bugs rencontr\'e9s boucle jVSj \
+Le plateau passe de 8 \'e0 5 piles ??Jouer_coup supprime bien deux jetons ou plus ?\
+boucle infinie ??? Il restait 3 piles, et il fallait choisir entre 2 fois la m\'eame c\'e9r\'e9ale\
 \
 
 \b boucle_jVSj:\
 
-\b0 - v\'e9rifier qu\'92on rentre bien j1/j2 pour le qui sinon \'e7a tourne sur place \
-- v\'e9rifier si le delete au d\'e9but de ce pr\'e9dicat sert vraiment, vu qu\'92il est pr\'e9sent dans jouer_coup\
-- ce serait bien d afficher l\'92\'e9tat des piles \'e0 chaque tour, non??\
+\b0 - v\'e9rifier qu\'92on rentre bien j1/j2 pour le qui sinon \'e7a tourne sur place \cf2 (Dans le pr\'e9dicat Qui, mais probl\'e8me)\cf0 \
+- v\'e9rifier si le delete au d\'e9but de ce pr\'e9dicat sert vraiment, vu qu\'92il est pr\'e9sent dans jouer_coup \cf2 (Je pense qu\'92il faut le laisser, on a une erreur sinon)\
+\cf0 - ce serait bien d afficher l\'92\'e9tat des piles \'e0 chaque tour, non?? (\cf2 dans les faits, les joueurs ne voient que le sommet des piles\cf0 )\
 }

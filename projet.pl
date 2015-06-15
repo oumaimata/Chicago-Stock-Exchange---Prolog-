@@ -98,24 +98,13 @@ delete_element(X, [Y|R], [Y|R1]):- X\=Y, delete_element(X, R, R1).
 
 
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), del_first(2, P, P2).
-
-%PROBLEME ici à résoudre en first
-%LANCER del_first(5, [[mais],[cafe,riz],[cacao],[riz,cafe,sucre],[cacao],[cacao,cafe,cafe],[ble],[mais,ble],[riz,sucre]], P2).
-
-
 %Supprime le premier élément d'une sous liste d'indice I d'une liste et renvoie la nouvelle Liste
 %del_first(Indice, Liste, NouvelleListe).
 del_first(_, [], []).
 del_first(I, P, P2):-
 	nieme(I, P, [T|Q]),
-
 	write('Sous liste à supprimer'), write([T|Q]), nl,
-
-
-
-	substitue([T|Q], Q, P, P2)			% CE QUI POSE PROBLEME
-
-
+	substitue([T|Q], Q, P, P2)
 %	write('Avant suppr'),		%TO COMMENT
 %	write(P), nl,
 %	write('Apres suppr'),		%TO COMMENT
@@ -357,33 +346,12 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 	write('Nouvelle Bourse : '), tab(5), affiche_bourse(B2), nl, 				%affiche la nouvelle bourse
 	positionPrec(Pos2, Prec, Ptemp),
 	positionSuiv(Pos2, Suiv, Ptemp),
-
 %	nl, write('Avant de suppr le prec'), nl,
 %	nl, write(Ptemp), nl,
-
 	delete_first_sous_liste(Ptemp,Prec,Ptemp2),
-
-%	nl, write('Après avoir suppr le prec'), nl,
-%	nl, write(Ptemp2), nl,
-
-%	nl, write('Avant de suppr le suiv'), nl,			
-	
 	delete_first_sous_liste(Ptemp2,Suiv,Ptemp3),
-	
-%	nl, write('Après avoir suppr le suiv'), nl,
-%	nl, write(Ptemp3), nl,
-
 	delete_element([], Ptemp3, NP),				%le nombre de piles vides supprimées change la position du trader
-
-
-%	nl, write('SOUS ICI3'), nl,
-
-%	write('Apres avoir retiré les listes vides'),
-
-						
-	nl, write('Etat des piles du plateau après le coup :'), nl, write(NP)					%affiche les piles du plateauTest TO COMMENT 
-
-
+	nl, write('Etat des piles du plateau après le coup :'), nl, write(NP)
 %	affiche_piles(NP, Pos2)					%montre les 9 tetes de piles ave la position du trader
 	.
 
@@ -560,13 +528,14 @@ compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .
 
 
 qui(X):-
-%	repeat,			%faire répéter si le joueur entre autre chose que j1 ou j2
 	write('Quel joueur commence : j1 ou j2 ?'),
-	read(X),
+	read(X), quiT(X), !
 %	X = 'j1', X = 'j2'			%erreur, si je test que j1 ça boucle bien, mais pour tester deux résultats : non
-	!
 	.
 
+qui(X):-qui(X).
+quiT('j1').
+quiT('j2').
 
 %alterner(JoueurActuel, Joueur Suivant).
 alterner('j1', 'j2').
@@ -642,7 +611,6 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
 	alterner(Joueur, Joueur2),
 	gagnant(Score1, Score2), !
-
 	.
 
 
@@ -661,14 +629,18 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 %	write(PlateauN),nl,				%TO COMMENT
 	
 	boucle_IAvsIA([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv)
-
 	.
 
+
+
+
+
+
+
 jVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), 
-	%qui(Joueur), nl, nl,
-	write('****TOUR DU JOUEUR '), write('****'), nl,nl,
+	qui(Joueur), nl, nl,
+	write('*********************TOUR DU JOUEUR '), write('*********************'), nl,nl,
 	boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur), 
-%	nb_Piles(Piles, NBPILES),nl, write('NOMBRE DE PILES : '), write(NBPILES),
 	!
 .
 
@@ -678,9 +650,10 @@ jVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2),
 
 
 boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):- 
+
 	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
 	nb_Piles(Piles, NBPILES), NBPILES=<2, 
-	write('***************Partie terminée***************'), nl,nl,	
+	write('*********************Partie terminée*********************'), nl,nl,	
 	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
 	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
 	alterner(Joueur, Joueur2),
@@ -690,22 +663,47 @@ boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	delete_element([], Piles, P),    %on supprime les éventuelles piles vides et on renvoie P
-	coup_possible([P, Pos, Bourse, Res1, Res2], ['j1', Deplacement, Garde, Vend]),
-	jouer_coup([P, Pos, Bourse, Res1, Res2], ['j1', Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
+	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
 	nl,nl,nl,nl,
-	alterner(Joueur, JoueurSuiv),
-	write('****TOUR DE L IA '), write('****'), nl,nl,nl,
-	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl,	
 
-	meilleur_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, Deplacement, Garde, Vend]),
-	jouer_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, Deplacement, Garde, Vend], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
+%faire une vérif ici du nombre de piles, et arrêter la fonction si c'est le cas
+
+	fin_du_jeu([PlateauN, PosN, BN, Res1N, Res2N], Joueur),		%% insérer un break ici
+
+	alterner(Joueur, JoueurSuiv),
+	write('*********************TOUR DE L IA '), write('*********************'), nl,nl,nl,
+	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl, 
+
+	meilleur_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, DeplacementIA, GardeIA, VendIA]),
+	jouer_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, DeplacementIA, GardeIA, VendIA], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
 	nl,nl,nl,nl,
+
 	alterner(JoueurSuiv, JoueurSuiv2),
-	write('****TOUR DU JOUEUR '), write('****'), nl,nl,nl,
+	write('*********************TOUR DU JOUEUR '), write('*********************'), nl,nl,nl,
 	plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
+
 
 	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv2)
 	.
+
+
+%utile pour tester dans boucle_JvsIA la terminaison du jeu après le coup du Joueur
+fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+	nb_Piles(Piles, NBPILES), NBPILES=<2, !,
+	write('*********************Partie terminée avec Fin du jeu*********************'), nl,nl,	
+	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
+	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
+	alterner(Joueur, Joueur2),
+	gagnant(Score1, Score2), !
+	.
+
+fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur).
+
+
+%on ne fait rien si le NBPILES est supérieur à 2
+
 
 /*boucle_JvsIAm([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	Joueur=='j1',

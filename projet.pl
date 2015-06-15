@@ -525,14 +525,10 @@ alterner('j2', 'j1').
 mais ca ne rentre pas dans le dernier jouer_coup de la boucle*/
 
 jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), 
-
-
-	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur),
-	nb_Piles(PlateauN, NBPILES), 
+	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur), nb_Piles(Piles, NBPILES), 
 	!,	
-	write(write(NBPILES),
-	NBPILES=2,      % condition d'arrêt : 2 piles
-
+	write(NBPILES),
+	NBPILES=2,!
 .
 
 boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-

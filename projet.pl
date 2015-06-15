@@ -524,13 +524,15 @@ alterner('j2', 'j1').
 /*finalement j'ai gardé les j1/j2, et une seul boucle jouer_coup, ça joue bien pour le premier joueur, ca rejoue aussi sur le nouveau plateau(gd news)
 mais ca ne rentre pas dans le dernier jouer_coup de la boucle*/
 
+
 jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), 
 	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur), nb_Piles(Piles, NBPILES), 
-	!,	
-	write(NBPILES),
-	NBPILES=2,!
+	!	
+	%write(NBPILES),
+	%NBPILES=2,!
 .
 
+boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):- nb_Piles(Piles, NBPILES), NBPILES=2, write('partie finie').
 boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 %	plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur),
 	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P

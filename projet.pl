@@ -320,7 +320,7 @@ coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
 	write('Céréale vendue : '), write(Vend), nl
 	.
 
-%cerealegardee(Choix, Choix1, Choix2, Garde, Vend).
+%cerealegardee(Choix, Choix2, Garde, Vend).
 cerealegardee(1, Choix1, Choix2, Choix1, Choix2).	%Choix1
 cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 

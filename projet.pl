@@ -493,7 +493,7 @@ score_joueur(Joueur, Bourse, J1R, J2R, Score):-
 % calcule le nombre de piles de marchandises non vides (équivalent à length)
 nb_Piles([], 0).
 nb_Piles([T|Q], X):-
-	nbPiles(Q,Y),
+	nb_Piles(Q,Y),
 	X is Y+1
 	.
 
@@ -527,7 +527,11 @@ mais ca ne rentre pas dans le dernier jouer_coup de la boucle*/
 jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), 
 
 
-boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur),!
+	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur),
+	nb_Piles(PlateauN, NBPILES), 
+	!,	
+	write(write(NBPILES),
+	NBPILES=2,      % condition d'arrêt : 2 piles
 
 .
 
@@ -546,13 +550,9 @@ boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), 
 
 	alterner(Joueur, JoueurSuiv),
-	write('JOUEUR SUIVANT'), write(JoueurSuiv),
+	write('JOUEUR SUIVANT'), nl, write(JoueurSuiv),
 
-	nb_Piles(PlateauN, NBPILES), 
-	!,	
-	write(write(NBPILES),
-	
-	NBPILES=2, 				% condition d'arrêt : 2 piles
+					
 
 	boucle_JvsJ([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv)
 

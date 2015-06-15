@@ -89,6 +89,7 @@ del(A, [A|B], B):- !.		%si premier élément de la liste, on renvoie la queue
 del(A, [B|C], [B|D]):- del(A, C, D).	%sinon on continue à chercher
 
 
+
 %LANCER delete_element([], [[], [1,2,3], [], [], [1,2]], X).
 %retire toutes les occurences de X dans la liste (même les listes vides).
 delete_element(_, [], []).
@@ -97,15 +98,49 @@ delete_element(X, [Y|R], [Y|R1]):- X\=Y, delete_element(X, R, R1).
 
 
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), del_first(2, P, P2).
-%Supprime le premier élément d'une sous liste d'indice I d'une liste  et renvoie la nouvelle Liste
+
+%PROBLEME ici à résoudre en first
+%LANCER del_first(5, [[mais],[cafe,riz],[cacao],[riz,cafe,sucre],[cacao],[cacao,cafe,cafe],[ble],[mais,ble],[riz,sucre]], P2).
+
+
+%Supprime le premier élément d'une sous liste d'indice I d'une liste et renvoie la nouvelle Liste
+%del_first(Indice, Liste, NouvelleListe).
 del_first(_, [], []).
 del_first(I, P, P2):-
 	nieme(I, P, [T|Q]),
 
-	substitue([T|Q], Q, P, P2)
+	write('Sous liste à supprimer'), write([T|Q]), nl,
+
+
+
+	substitue([T|Q], Q, P, P2)			% CE QUI POSE PROBLEME
+
+
+%	write('Avant suppr'),		%TO COMMENT
 %	write(P), nl,
+%	write('Apres suppr'),		%TO COMMENT
 %	write(P2), nl
 	.
+
+%LANCER delete_first_sous_liste([[mais],[cafe,riz],[cacao],[riz,cafe,sucre],[cacao],[cacao,cafe,cafe],[ble],[mais,ble],[riz,sucre]], 5, P2).
+
+%Supprime le premier élément de la sous liste d'indice I de la liste L et renvoie le résultat dans Res
+%delete_first_sous_liste(Liste, I, NewListe). 
+delete_first_sous_liste([[_|R]|Q],1,[R|Queue]):-!.
+delete_first_sous_liste([T|Q],PosSousListe,[T|R]):-
+	NPosSousListe is PosSousListe-1,
+ 	delete_first_sous_liste(Queue,NPosSousListe,R).
+
+
+%LANCER supprimeElement([[mais],[cafe,riz],[cacao],[riz,cafe,sucre],[cacao],[cacao,cafe,cafe],[ble],[mais,ble],[riz,sucre]], 5, P2).
+
+% Prédicat permettant de supprimer la tête de la ième sous-liste et de renvoyer la liste modifiée
+
+supprimeElement([[_|R]|Queue],1,[R|Queue]):-!.
+    supprimeElement([Tete|Queue],PositionRelativeSousListe,[Tete|R]):-
+    NewPositionRelativeSousListe is PositionRelativeSousListe-1,
+    supprimeElement(Queue,NewPositionRelativeSousListe,R).
+
 
 
 %Ajout d'un élément X à la liste L et renvoie le résultat dans R (UTILE pour les réserves des joueurs)
@@ -117,6 +152,7 @@ add(X, [T|Q], [X,T|Q]).	%si liste non vide, on l'ajoute en début de liste.
 %va chercher l'élément X dans la liste
 element(X, [X|_]).
 element(X, [T|Q]):- T\= X, element(X, Q).
+
 
 %va chercher l'élément X dans la liste et RENVOIE L'INDICE : on peut retirer le T\= X
 elementindice(X, [X|_], 1).
@@ -309,7 +345,7 @@ cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 %décrémente la céréale vendue, et retourne le nouveau plateau avec les 2 jetons de moins (et supprime les éventuelles listes vides)
 % jouer_coup(+PlateauInitial, ?Coup, ?NouveauPlateau)
 
-jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
+jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos3, B2, J1R2, J2R2]):-
 %	write('********************JOUER COUP*******************'), nl,
 	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
 	Y is Pos + D,
@@ -325,10 +361,26 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 	positionPrec(Pos2, Prec, Ptemp),
 	positionSuiv(Pos2, Suiv, Ptemp),
 
-	del_first(Prec, Ptemp, P1), 
-	del_first(Suiv, P1, P2),
-	delete_element([], P2, NP),						
-	write(NP)					%affiche les piles du plateau
+	nl, write('Avant de suppr le prec'), nl,
+	del_first(Prec, Ptemp, Ptemp2),
+
+	nl, write('Après avoir suppr le prec'), nl,
+	nl, write(Ptemp2), nl,
+
+	nl, write('Avant de suppr le suiv'), nl,			
+	del_first(Suiv, Ptemp2, Ptemp3),
+
+	nl, write('Après avoir suppr le suiv'), nl,
+	nl, write(Ptemp3), nl,
+
+	delete_element([], Ptemp3, NP),				%le nombre de piles vides supprimées change la position du trader
+	nl, write('SOUS ICI3'), nl,
+
+	write('Apres avoir retirer les listes vides'), write(NP),
+	length(NP, NbPiles),						%PROBLEME ici	
+	modulo(Pos2, NbPiles, Pos3),
+						
+	write(NP)						%affiche les piles du plateauTest TO COMMENT 
 %	affiche_piles(Ptemp, Pos), nl,
 %	affiche_piles(NP, Pos2)
 	.
@@ -342,11 +394,19 @@ bourse_sortie([Vend, Valeur],B, B2):-
 
 
 % On remplace l'élément X (qui peut être une SOUS LISTE) de la bourse B (une liste de sous listes) par l'élément 2 dans la nouvelle bourse B2 
-%substitute_bourse(X, Y, B, B2).
-	
+
+%LANCER substitue(2, 9, [1, 2, 3, 4, 2, 2, 3], NouvelleListe).
+%substitue tous les éléments X de AncienneListe par Y et renvoie NouvelleListe
+%substitue(X, Y, AncienneListe, NouvelleListe).
+
 substitue(X,Y,[],[]).
 substitue(X,Y,[X|R],[Y|R1]):- substitue(X,Y,R,R1), !.
-substitue(X,Y,[Z|R],[Z|R1]):- X\==Y, substitue(X,Y,R,R1).
+substitue(X,Y,[Z|R],[Z|R1]):- X\==Z, substitue(X,Y,R,R1).
+
+%substitue l'élément X d'indice I par Y
+substitue_ind(0, X,Y,[],[]).
+substitue_ind(I, X,Y,[],[]). 
+
 
 
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), coups_possibles([P, Pos, B, J1R, J2R], Joueur, L).	
@@ -393,7 +453,7 @@ meilleur_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]):-
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C5, Score5),
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C6, Score6),
 
-	write('ICI'), write('Liste des scores : '), nl,
+	write('Liste des scores : '), nl,
 	write(Score1), tab(3), write(Score2), tab(3), write(Score3), tab(3), write(Score4), tab(3), write(Score5), tab(3), write(Score6), tab(3), nl,
 	maximum_liste([Score1, Score2, Score3, Score4, Score5, Score6], MeilleurScore),
 	ListeCoupsScores = [[C1, Score1], [C2, Score2], [C2, Score2], [C3, Score3], [C4, Score4], [C5, Score5], [C6, Score6]],
@@ -528,13 +588,13 @@ gagnant(Score1, Score2):-
 
 %Cas où les 2 scores sont égaux
 gagnant(Score1, Score2):-
-	write('Les deux joueurs terminent à égalité avec un score de '), write(Score1), write(' et '), write(Score2)
+	write('Les deux joueurs terminent à égalité avec un score de '), write(Score1)
 	.
 
 
 jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), nl, nl,
 	write('****TOUR DU JOUEUR '), write(Joueur), write('****'), nl,nl,
-	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur), nb_Piles(Piles, NBPILES), 
+	boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur),
 	!
 .
 
@@ -579,7 +639,8 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
 	nb_Piles(Piles, NBPILES), NBPILES=<2, 
 	write('***************Partie terminée***************'), nl,nl,
-	
+	write(Piles), nl, 			%TO COMMENT
+
 	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
 	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
 	alterner(Joueur, Joueur2),
@@ -587,16 +648,20 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 	.
 
+
 boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
 
 	meilleur_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
+	nl, write('ICI -1 : avant jouer coup'), nl,
 
 	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	nl, write('ICI après jouer_coup'), nl,
 	nl,nl,nl,nl,
 	alterner(Joueur, JoueurSuiv),
 	write('****TOUR DU JOUEUR '), write(JoueurSuiv), write('****'), nl,nl,nl,
 	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl,
+	write(PlateauN),nl,				%TO COMMENT
 	
 	boucle_IAvsIA([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv)
 

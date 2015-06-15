@@ -57,7 +57,8 @@ G\'e9rer les saisies de l\'92utilisateur : pr\'e9dicats  qui, coup_possible\
 \
 Le Trader ne s\'92affiche pas quelques fois !!! (apr\'e8s suppression de pile vide). Ex : Pos = 5 alors qu\'92on supprime 2 piles, il en reste 4, et donc probl\'e8me\
 \cf2 Il faut recalculer sa position apr\'e8s suppression des piles vides\'85\
-\cf0 \
+\cf0 Si derni\'e8re position avant les suppressions, on lui redonne la derni\'e8re position apr\'e8s les suppr\
+\
 Bugs rencontr\'e9s boucle jVSj \
 Le plateau passe de 8 \'e0 5 piles ??Jouer_coup supprime bien deux jetons ou plus ?\
 \'97> 
@@ -70,6 +71,8 @@ Le plateau passe de 8 \'e0 5 piles ??Jouer_coup supprime bien deux jetons ou plu
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \f0\fs24 \cf0 \CocoaLigature1 \
+Le probl\'e8me vient de substitue dans del_first\
+\
 BUG quand il reste 2 PILES IDENTIQUE avec un SEUL \'e9l\'e9ment\
 \cf2 DANS JOUER_COUP : probl\'e8me dans les indices Prec et Suiv car on supprime des listes etc.\
 \cf0 \

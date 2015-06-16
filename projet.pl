@@ -589,3 +589,9 @@ appel(2):- write('Vous avez choisi le mode : Ordinateur vs Ordinateur'),nl,nl,nl
 appel(3):- write('Vous avez choisi le mode : Joueur vs Ordinateur'),nl,nl,nl,jVSia,!.
 appel(4):- write('Merci d avoir joué !'), nl, write('Au revoir'),!.
 appel(_):- write('Vous avez mal choisi').
+
+
+Dans le cadre du programme portant sur la programmation Logique en IA02, il nous a été demandé d’implémenter en Prolog le jeu « Chicago Stock Exchange » complet composé de la partie Humain vs Humain, Humain vs Machine, Machine vs Machine en respectant la structures des données (cf p. 4) et les règles du jeu. 
+
+Le Chicago Stock Exchange est un jeu de société qui se joue pratiquement sur un plateau. Il se base essentiellement sur des principes de finance et de bourse: moins on vend une marchandise, plus elle est se ratifie et devient chère. Les joueurs s’alternent en déplaçant successivement un trader. Ils récupèrent deux céréales (respectivement à gauche et à droite de la pile où est positionner le trader)à chaque tour, gardent une céréale et vendent l’autre sur le marché boursier. La vente décrémente la valeur en bourse de la céréale d’une unité . Le but du jeu est d’avoir le score le plus élevé, la stratégie étant de s’enrichir au maximum tout en appauvrissant l’adversaire.
+

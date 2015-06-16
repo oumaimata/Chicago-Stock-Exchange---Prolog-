@@ -12,8 +12,9 @@ plateauTest([
 
 
 
-%----------------------------Variables définies----------------------------
+%----------------------------Générer Piles----------------------------
 
+	
 %jetons au total, on va piocher dedans pour générer nos piles
 jetons([
 	ble, ble, ble, ble, ble, ble,
@@ -24,7 +25,6 @@ jetons([
 	mais, mais, mais, mais, mais, mais
 	]).
 
-deplacement([1, 2, 3]).		%
 
 %les piles sont des listes
 generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P):- 
@@ -59,6 +59,24 @@ une_pile(A, B, C, D, Pi, Sac, Sac_res):-
 	write(Sac), nl,
 	write('Sac resultat'), nl,write(Sac_res).
 */
+
+% Valeur des marchandises : les valeurs seront modifiées à chaque tour de jeu
+bourse([
+[ble,7],
+[riz,6],
+[cacao,6],
+[cafe,6],
+[sucre,6],
+[mais,6]
+]).
+
+
+
+j1Reserve([]).			 % on va compléter leur réserve respective au fur et à mesure du jeu 
+j2Reserve([]).
+
+
+%----------------------------Fonctions de service----------------------------
 
 %Nouveau modulo pour ne pas avoir de résultat égal à 0
 modulo(X, X, X):- !.				%Pour éviter le 9 mod 9 = 0 par exemple
@@ -105,10 +123,6 @@ del_first(I, P, P2):-
 	nieme(I, P, [T|Q]),
 	write('Sous liste à supprimer'), write([T|Q]), nl,
 	substitue([T|Q], Q, P, P2)
-%	write('Avant suppr'),		%TO COMMENT
-%	write(P), nl,
-%	write('Apres suppr'),		%TO COMMENT
-%	write(P2), nl
 	.
 
 %LANCER delete_first_sous_liste([[mais],[cafe,riz],[cacao],[riz,cafe,sucre],[cacao],[cacao,cafe,cafe],[ble],[mais,ble],[riz,sucre]], 5, P2).
@@ -119,14 +133,7 @@ delete_first_sous_liste([[_|R]|Q],1,[R|Q]):-!.
 delete_first_sous_liste([T|Q],PositionRelativeSousListe,[T|R]):-
 	NewPositionRelativeSousListe is PositionRelativeSousListe-1,
  	delete_first_sous_liste(Q,NewPositionRelativeSousListe,R)
-
-%	write('Avant suppr'),		%TO COMMENT
-%	write(P), nl,
-%	write('Apres suppr'),		%TO COMMENT
-%	write(P2), nl
- 	.
-
-
+	.
 
 
 %Ajout d'un élément X à la liste L et renvoie le résultat dans R (UTILE pour les réserves des joueurs)
@@ -149,29 +156,17 @@ elementindice(X, [T|Q], I):- T\= X, element(X, Q, I2), I is I2 + 1.
 nieme(1, [X|_], X):-!.
 nieme(N, [_|Q], X):- M is N -1, nieme(M, Q, X).
 
+% On remplace l'élément X (qui peut être une SOUS LISTE) de la bourse B (une liste de sous listes) par l'élément 2 dans la nouvelle bourse B2 
+
+%substitue tous les éléments X de AncienneListe par Y et renvoie NouvelleListe
+%substitue(X, Y, AncienneListe, NouvelleListe).
+
+substitue(X,Y,[],[]).
+substitue(X,Y,[X|R],[Y|R1]):- substitue(X,Y,R,R1), !.
+substitue(X,Y,[Z|R],[Z|R1]):- X\==Z, substitue(X,Y,R,R1).
 
 
-
-% Valeur des marchandises : les valeurs seront modifiées à chaque tour de jeu
-bourse([
-[ble,7],
-[riz,6],
-[cacao,6],
-[cafe,6],
-[sucre,6],
-[mais,6]
-]).
-
-
-
-j1Reserve([]).			 % on va compléter leur réserve respective au fur et à mesure du jeu 
-j2Reserve([]).
-
-
-
-
-
-% ----------------------------prédicats----------------------------
+% ----------------------------Gestion des affichages----------------------------
 
 
 ecrire(ble):- write('Blé'), !.
@@ -271,8 +266,6 @@ plateau_depart(M, Pos, B, R1,R2):-
 	affiche_J2Reserve(R2), nl
 	.
 
-plateau:-[M, Pos, B, R1, R2].
-
 
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), plateauEncours(P,Pos, B, J1R,J2R).
 plateauEncours(M,P, B, J1R,J2R):- 
@@ -285,6 +278,9 @@ plateauEncours(M,P, B, J1R,J2R):-
 	
 %affiche_J1Reserve([ble, riz, cacao, sucre]).	
 
+
+%----------------------------Coup humain----------------------------
+
 positionPrec(1, X, List):- length(List, X).
 positionPrec(Pos, NPos, List):- NPos is Pos-1.
 
@@ -292,6 +288,7 @@ positionSuiv(X, 1, List):- length(List, X).
 positionSuiv(Pos, NPos, List):- NPos is Pos+1.
 
 
+deplacement([1, 2, 3]).
 
 % LANCER plateauTest([P, Pos, B, J1R, J2R]), delete_element([], P, NP), affiche_piles(P, Pos), coup_possible([NP, Pos, B, J1R, J2R],[Joueur, Deplacement, Garde, Vend]).
 %coup_possible(Plateau, Coup)
@@ -325,6 +322,9 @@ cerealegardee(1, Choix1, Choix2, Choix1, Choix2).	%Choix1
 cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 
 
+
+%----------------------------Jouer_coup quelque soit la boucle----------------------------
+
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), jouer_coup([P, Pos, B, J1R, J2R],[j1, 2, sucre, riz],[P2, Pos2, B2, J1R2, J2R2]).
 
 %jouer_coup additionne le déplacement du Trader à la position initiale, modifie la réserve du joueur qui joue,
@@ -357,6 +357,17 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 
 
 
+add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
+	Joueur == 'j1',
+	add(Garde, J1R, J1R2),
+	J2R2 = J2R,
+	!.
+
+add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
+	Joueur == 'j2',
+	add(Garde, J2R, J2R2),
+	J1R2 = J1R.
+
 %On fournit la céréale et sa valeur avec la bourse actuelle, et on renvoie la bourse modifiée avec cette valeur
 bourse_sortie([Vend, Valeur],B, B2):-
 	element([Vend, Valeur], B),
@@ -365,15 +376,8 @@ bourse_sortie([Vend, Valeur],B, B2):-
 
 
 
-% On remplace l'élément X (qui peut être une SOUS LISTE) de la bourse B (une liste de sous listes) par l'élément 2 dans la nouvelle bourse B2 
 
-%substitue tous les éléments X de AncienneListe par Y et renvoie NouvelleListe
-%substitue(X, Y, AncienneListe, NouvelleListe).
-
-substitue(X,Y,[],[]).
-substitue(X,Y,[X|R],[Y|R1]):- substitue(X,Y,R,R1), !.
-substitue(X,Y,[Z|R],[Z|R1]):- X\==Z, substitue(X,Y,R,R1).
-
+%----------------------------Coup Machine----------------------------
 
 %LANCER plateauTest([P, Pos, B, J1R, J2R]), affiche_piles(P, Pos), coups_possibles([P, Pos, B, J1R, J2R], Joueur, L).	
 %coups_possibles(Plateau, Joueur, ListeCoupsPossibles).		6 coups possibles, on inverse Garde et Vend pour 2 coups avec le même Déplacement
@@ -473,16 +477,7 @@ simuler_coup_ordi([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], Score):-
 
 
 
-add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
-	Joueur == 'j1',
-	add(Garde, J1R, J1R2),
-	J2R2 = J2R,
-	!.
 
-add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
-	Joueur == 'j2',
-	add(Garde, J2R, J2R2),
-	J1R2 = J1R.
 
 
 % LANCER bourse(B), score_Elt(riz, Bourse, S).
@@ -529,13 +524,11 @@ compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .
 
 qui(X):-
 	write('Quel joueur commence : j1 ou j2 ?'),
-	read(X), quiT(X), !
-%	X = 'j1', X = 'j2'			%erreur, si je test que j1 ça boucle bien, mais pour tester deux résultats : non
-	.
-
+	read(X), quiT(X), !.
 qui(X):-qui(X).
 quiT('j1').
 quiT('j2').
+
 
 %alterner(JoueurActuel, Joueur Suivant).
 alterner('j1', 'j2').
@@ -558,6 +551,8 @@ gagnant(Score1, Score2):-
 	write('Les deux joueurs terminent à égalité avec un score de '), write(Score1)
 	.
 
+
+%----------------------------Boucle Homme/Homme----------------------------
 
 jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), nl, nl,
 	write('*********************TOUR DU JOUEUR '), write(Joueur), write('*********************'), nl,nl,
@@ -592,7 +587,7 @@ boucle_JvsJ([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 	.
 
-
+%----------------------------Boucle IA/IA----------------------------
 
 iaVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), nl, nl,
 	write('*********************TOUR DU JOUEUR '), write(Joueur), write('*********************'), nl,nl,
@@ -634,7 +629,7 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 
 
-
+%----------------------------Boucle Homme/IA----------------------------
 
 
 jVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), 
@@ -729,7 +724,7 @@ boucle_JvsIAm([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 
 
-
+%----------------------------Boucle Menu----------------------------
 
 
 boucle_menu:- repeat, menu, !.

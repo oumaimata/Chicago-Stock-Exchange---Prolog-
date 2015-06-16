@@ -310,7 +310,8 @@ coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
 	nieme(Suiv, P, [Choix2|_]),
 	nl, write('Quelle céréale voulez-vous Garder ?'), nl,
 	repeat,
-	write(' Tapez 1 pour prendre de la pile Précédente le '), write(Choix1), nl, write(' ou Tapez 2 pour prendre de la pile Suivante le '), write(Choix2), write(' : '),
+	write(' Tapez 1 pour prendre de le " '), write(Choix1), write(' "de la pile Precedente'),nl,
+	write(' Tapez 2 pour prendre de le " '), write(Choix2), write(' "de la pile Suivante'), write(' : '), nl,
 	read(Choix), Choix>=1, Choix=<2,
 	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
 	write('Céréale gardée : '), write(Garde), nl,
@@ -642,11 +643,11 @@ jVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2),
 %boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], 'j1'):- boucle_JvsIAH([Piles,Pos,Bourse,Res1,Res2], Joueur).
 %boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], 'j2'):- boucle_JvsIAM([Piles,Pos,Bourse,Res1,Res2], Joueur).
 
-
+finir:- nb_Piles(PlateauN, NBPILES), NBPILES=<2, boucle_JvsIA([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv),!.
 
 boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):- 
 
-	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+	%delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
 	nb_Piles(Piles, NBPILES), NBPILES=<2, 
 	write('*********************Partie terminée*********************'), nl,nl,	
 	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
@@ -657,20 +658,21 @@ boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	.
 
 boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
-	delete_element([], Piles, P),    %on supprime les éventuelles piles vides et on renvoie P
-	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
-	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
+	write('*********************TOUR DU JOUEUR '), write('*********************'), nl,nl,nl,
+	%delete_element([], Piles, P),    %on supprime les éventuelles piles vides et on renvoie P
+	coup_possible([Piles, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
+	jouer_coup([Piles, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
 	nl,nl,nl,nl,
 
-%faire une vérif ici du nombre de piles, et arrêter la fonction si c'est le cas
-
-	fin_du_jeu([PlateauN, PosN, BN, Res1N, Res2N], Joueur),		%% insérer un break ici
-
 	alterner(Joueur, JoueurSuiv),
-	write('*********************TOUR DE L IA '), write('*********************'), nl,nl,nl,
-	plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl, 
 
-	meilleur_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, DeplacementIA, GardeIA, VendIA]),
+	
+	%plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl, 
+	delete_element([], PlateauN, PN),
+	%finir,
+	fin_du_jeu([PN, PosN, BN, Res1N, Res2N], JoueurSuiv)
+
+	/*meilleur_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, DeplacementIA, GardeIA, VendIA]),
 	jouer_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, DeplacementIA, GardeIA, VendIA], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
 	nl,nl,nl,nl,
 
@@ -678,14 +680,13 @@ boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	write('*********************TOUR DU JOUEUR '), write('*********************'), nl,nl,nl,
 	plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
 
-
-	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv2)
+	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv2)*/
 	.
 
 
 %utile pour tester dans boucle_JvsIA la terminaison du jeu après le coup du Joueur
 fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
-	delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
+	%delete_element([], Piles, P),		%on supprime les éventuelles piles vides et on renvoie P
 	nb_Piles(Piles, NBPILES), NBPILES=<2, !,
 	write('*********************Partie terminée avec Fin du jeu*********************'), nl,nl,	
 	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
@@ -694,7 +695,21 @@ fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	gagnant(Score1, Score2), !
 	.
 
-fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur).
+fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
+	%delete_element([], Piles, P),
+	plateauEncours(Piles,Pos,Bourse,Res1,Res2)
+	write('*********************TOUR DE L IA '), write('*********************'), nl,nl,nl,
+	meilleur_coup([Piles,Pos,Bourse,Res1,Res2], [Joueur, DeplacementIA, GardeIA, VendIA]),
+	jouer_coup([Piles,Pos,Bourse,Res1,Res2], [Joueur, DeplacementIA, GardeIA, VendIA], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
+	nl,nl,nl,nl,
+
+	alterner(Joueur, JoueurSuiv),
+	
+	plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
+
+	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv)
+	.
+
 
 
 %on ne fait rien si le NBPILES est supérieur à 2

@@ -80,6 +80,8 @@ j2Reserve([]).
 
 %Nouveau modulo pour ne pas avoir de résultat égal à 0
 modulo(X, X, X):- !.				%Pour éviter le 9 mod 9 = 0 par exemple
+modulo(6, 3, 3):- !.
+modulo(4, 2, 2):- !.
 modulo(X, Nbpiles, Res):- Res is X mod Nbpiles.
 
 
@@ -281,10 +283,10 @@ plateauEncours(M,P, B, J1R,J2R):-
 
 %----------------------------Coup humain----------------------------
 
-positionPrec(1, X, List):- length(List, X).
-positionPrec(Pos, NPos, List):- NPos is Pos-1.
+positionPrec(1, X, List):- length(List, X), !.
+positionPrec(Pos, NPos, List):-  NPos is Pos-1.
 
-positionSuiv(X, 1, List):- length(List, X).
+positionSuiv(X, 1, List):- length(List, X), !.
 positionSuiv(Pos, NPos, List):- NPos is Pos+1.
 
 
@@ -310,8 +312,8 @@ coup_possible([P, Pos, B, J1R, J2R], [Joueur, Deplacement, Garde, Vend]):-
 	nieme(Suiv, P, [Choix2|_]),
 	nl, write('Quelle céréale voulez-vous Garder ?'), nl,
 	repeat,
-	write(' Tapez 1 pour prendre de le " '), write(Choix1), write(' "de la pile Precedente'),nl,
-	write(' Tapez 2 pour prendre de le " '), write(Choix2), write(' "de la pile Suivante'), write(' : '), nl,
+	write(' Tapez 1 pour prendre de le " '), write(Choix1), write(' " de la pile Precedente'),nl,
+	write(' Tapez 2 pour prendre de le " '), write(Choix2), write(' " de la pile Suivante'), write(' : '), nl,
 	read(Choix), Choix>=1, Choix=<2,
 	cerealegardee(Choix, Choix1, Choix2, Garde, Vend),
 	write('Céréale gardée : '), write(Garde), nl,
@@ -332,7 +334,7 @@ cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 %décrémente la céréale vendue, et retourne le nouveau plateau avec les 2 jetons de moins (et supprime les éventuelles listes vides)
 % jouer_coup(+PlateauInitial, ?Coup, ?NouveauPlateau)
 
-jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
+jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos3, B2, J1R2, J2R2]):-
 %	write('********************JOUER COUP*******************'), nl,
 	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
 	Y is Pos + D,
@@ -352,10 +354,46 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 	delete_first_sous_liste(Ptemp,Prec,Ptemp2),
 	delete_first_sous_liste(Ptemp2,Suiv,Ptemp3),
 	delete_element([], Ptemp3, NP),				%le nombre de piles vides supprimées change la position du trader
+	repositionne_trader(Pos2, Pos3, NP),
+	nl,write('Position du Trader '), write(Pos3),
 	nl, write('Etat des piles du plateau après le coup :'), nl, write(NP)
 %	affiche_piles(NP, Pos2)					%montre les 9 tetes de piles ave la position du trader
 	.
 
+
+jouer_coup_ordi([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
+%	write('********************JOUER COUP*******************'), nl,
+	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
+	Y is Pos + D,
+	length(Ptemp, NbPiles),	
+	modulo(Y, NbPiles, Pos2),				
+%	write(Pos2), nl,
+	add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2),
+	write('Nouvelle réserve du Joueur 1 :'), write(J1R2), nl,nl,
+	write('Nouvelle réserve du Joueur 2 :'), write(J2R2), nl,nl,
+	bourse_sortie([Vend, Valeur], B, B2),
+	write('Ancienne Bourse : '), tab(5), affiche_bourse(B), nl,					%affiche l'ancienne bourse
+	write('Nouvelle Bourse : '), tab(5), affiche_bourse(B2), nl, 				%affiche la nouvelle bourse
+	positionPrec(Pos2, Prec, Ptemp),
+	positionSuiv(Pos2, Suiv, Ptemp),
+%	nl, write('Avant de suppr le prec'), nl,
+%	nl, write(Ptemp), nl,
+	delete_first_sous_liste(Ptemp,Prec,Ptemp2),
+	delete_first_sous_liste(Ptemp2,Suiv,Ptemp3),
+	delete_element([], Ptemp3, NP),				%le nombre de piles vides supprimées change la position du trader
+
+	nl, write('Etat des piles du plateau après le coup :'), nl, write(NP)
+%	affiche_piles(NP, Pos2)					%montre les 9 tetes de piles ave la position du trader
+	.
+
+%Si la position du Trader est supérieure au nombre de Piles (après suppression des piles vides par exemple), on repositionne le Trader à la dernière pile
+%repositionne_trader(AnciennePosition, NouvellePosition, Piles)
+repositionne_trader(Pos, NPos, Piles):- 
+	length(Piles, L), 
+	Pos > L, 
+	NPos is L, !.
+
+repositionne_trader(Pos, Pos, Piles).	% si ce n'est pas le cas, il garde la même position
 
 
 add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
@@ -423,6 +461,12 @@ meilleur_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend]):-
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C4, Score4),
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C5, Score5),
 	simuler_coup_ordi([P, Pos, B, J1R, J2R], C6, Score6),
+
+
+%PROBLEM
+
+%meilleur_coup([[[cafe],[cacao,mais,ble,cafe],[riz]], 3, [[ble,7],[riz,1],[cacao,2],[cafe,3],[sucre,4],[mais,5]], [cafe,sucre,sucre,sucre,cacao,ble,mais,ble], [sucre,mais,mais,mais,ble,ble,ble]], [Joueur, D, Garde, Vend]).
+
 
 %	write('Liste des scores : '), nl,
 %	write(Score1), tab(3), write(Score2), tab(3), write(Score3), tab(3), write(Score4), tab(3), write(Score5), tab(3), write(Score6), tab(3), nl,
@@ -617,7 +661,6 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 %	nl, write('ICI -1 : avant jouer coup'), nl,
 
 	jouer_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
-%	nl, write('ICI après jouer_coup'), nl,
 	nl,nl,nl,nl,
 	alterner(Joueur, JoueurSuiv),
 	write('*********************TOUR DU JOUEUR '), write(JoueurSuiv), write('*********************'), nl,nl,nl,
@@ -659,22 +702,7 @@ boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	nl,nl,nl,nl,
 	delete_element([], PlateauN, PN),
 	alterner(Joueur, JoueurSuiv),
-
-	
-	%plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl, 
-	
-	%finir,
 	fin_du_jeu([PN, PosN, BN, Res1N, Res2N], JoueurSuiv)
-
-	/*meilleur_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, DeplacementIA, GardeIA, VendIA]),
-	jouer_coup([PlateauN, PosN, BN, Res1N, Res2N], [JoueurSuiv, DeplacementIA, GardeIA, VendIA], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
-	nl,nl,nl,nl,
-
-	alterner(JoueurSuiv, JoueurSuiv2),
-	write('*********************TOUR DU JOUEUR '), write('*********************'), nl,nl,nl,
-	plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
-
-	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv2)*/
 	.
 
 
@@ -686,52 +714,16 @@ fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	score_reserve(Res1, Bourse, Score1),	%Score du Joueur 1
 	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
 	alterner(Joueur, Joueur2),
-	gagnant(Score1, Score2), !
-	.
+	gagnant(Score1, Score2), !.
 
 fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
-	%delete_element([], Piles, P),
-
 	write('*********************TOUR DE L IA '), write('*********************'), nl,nl,nl,
-
 	plateauEncours(Piles,Pos,Bourse,Res1,Res2),
 	meilleur_coup([Piles,Pos,Bourse,Res1,Res2], [Joueur, DeplacementIA, GardeIA, VendIA]),
 	jouer_coup([Piles,Pos,Bourse,Res1,Res2], [Joueur, DeplacementIA, GardeIA, VendIA], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
 	nl,nl,nl,nl,
 	alterner(Joueur, JoueurSuiv),
-	
-	%plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
-
-	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv)
-	.
-
-
-
-
-%on ne fait rien si le NBPILES est supérieur à 2
-
-
-/*boucle_JvsIAm([Piles,Pos,Bourse,Res1,Res2], Joueur):-
-	Joueur=='j1',
-	coup_possible([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend])
-	.
-
-boucle_JvsIAm([Piles,Pos,Bourse,Res1,Res2], Joueur):-
-	Joueur=='j2',
-	meilleur_coup([P, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend])
-	.
-*/
-
-
-/* (Joueur == 1 ->
-		(coup_possible(Plateau,Coup));	
-		JoueurSuiv is 2;
-	%Si c'est le tour du joueur 2 
-		(coup_possible(Plateau,Coup));
-		JoueurSuiv is 1), */
-
-
-
+	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv).
 
 
 

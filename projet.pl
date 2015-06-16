@@ -519,7 +519,7 @@ nb_Piles([T|Q], X):-
 %LANCER compte([[1,2,3], []], X).
 % compte(L,N) est vrai si N est le nombre d'éléments dans la liste L.
 compte([],0).
-compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .
+compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .					%TO COMMENT
 
 
 qui(X):-
@@ -552,7 +552,7 @@ gagnant(Score1, Score2):-
 	.
 
 
-%----------------------------Boucle Homme/Homme----------------------------
+%----------------------------Boucle Humain/Humain----------------------------
 
 jVSj:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), qui(Joueur), nl, nl,
 	write('*********************TOUR DU JOUEUR '), write(Joueur), write('*********************'), nl,nl,
@@ -629,7 +629,7 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 
 
-%----------------------------Boucle Homme/IA----------------------------
+%----------------------------Boucle Humain/IA----------------------------
 
 
 jVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), 

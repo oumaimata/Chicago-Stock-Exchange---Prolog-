@@ -635,15 +635,9 @@ boucle_IAvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 jVSia:-  plateau_depart(Piles,Pos,Bourse,Res1,Res2), 
 	qui(Joueur), nl, nl,
-	write('*********************TOUR DU JOUEUR '), write('*********************'), nl,nl,
 	boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur), 
 	!
 .
-
-%boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], 'j1'):- boucle_JvsIAH([Piles,Pos,Bourse,Res1,Res2], Joueur).
-%boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], 'j2'):- boucle_JvsIAM([Piles,Pos,Bourse,Res1,Res2], Joueur).
-
-finir:- nb_Piles(PlateauN, NBPILES), NBPILES=<2, boucle_JvsIA([PlateauN, PosN, BN, Res1N, Res2N], JoueurSuiv),!.
 
 boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):- 
 
@@ -654,21 +648,21 @@ boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	score_reserve(Res2, Bourse, Score2),	%Score du Joueur 2
 	alterner(Joueur, Joueur2),
 	gagnant(Score1, Score2), !
-
 	.
 
 boucle_JvsIA([Piles,Pos,Bourse,Res1,Res2], Joueur):-
-	write('*********************TOUR DU JOUEUR '), write('*********************'), nl,nl,nl,
+	write('*********************TOUR DU JOUEUR '), write(Joueur), write('*********************'), nl,nl,nl,
+	plateauEncours(Piles,Pos,Bourse,Res1,Res2),
 	%delete_element([], Piles, P),    %on supprime les éventuelles piles vides et on renvoie P
 	coup_possible([Piles, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend]),
 	jouer_coup([Piles, Pos, Bourse, Res1, Res2], [Joueur, Deplacement, Garde, Vend], [PlateauN, PosN, BN, Res1N, Res2N]),
 	nl,nl,nl,nl,
-
+	delete_element([], PlateauN, PN),
 	alterner(Joueur, JoueurSuiv),
 
 	
 	%plateauEncours(PlateauN, PosN, BN, Res1N, Res2N), nl, 
-	delete_element([], PlateauN, PN),
+	
 	%finir,
 	fin_du_jeu([PN, PosN, BN, Res1N, Res2N], JoueurSuiv)
 
@@ -697,18 +691,20 @@ fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 
 fin_du_jeu([Piles,Pos,Bourse,Res1,Res2], Joueur):-
 	%delete_element([], Piles, P),
-	plateauEncours(Piles,Pos,Bourse,Res1,Res2)
+
 	write('*********************TOUR DE L IA '), write('*********************'), nl,nl,nl,
+
+	plateauEncours(Piles,Pos,Bourse,Res1,Res2),
 	meilleur_coup([Piles,Pos,Bourse,Res1,Res2], [Joueur, DeplacementIA, GardeIA, VendIA]),
 	jouer_coup([Piles,Pos,Bourse,Res1,Res2], [Joueur, DeplacementIA, GardeIA, VendIA], [PlateauNN, PosNN, BNN, Res1NN, Res2NN]),
 	nl,nl,nl,nl,
-
 	alterner(Joueur, JoueurSuiv),
 	
-	plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
+	%plateauEncours(PlateauNN, PosNN, BNN, Res1NN, Res2NN), nl,
 
 	boucle_JvsIA([PlateauNN, PosNN, BNN, Res1NN, Res2NN], JoueurSuiv)
 	.
+
 
 
 

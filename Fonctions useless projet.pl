@@ -213,5 +213,31 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 %	affiche_piles(NP, Pos2)					%montre les 9 tetes de piles ave la position du trader
 	.
 
+	
+%LANCER compte([[1,2,3], []], X).
+% compte(L,N) est vrai si N est le nombre d'éléments dans la liste L.
+compte([],0).
+compte([_|R],N) :- compte(R,N1), N is N1+1, N>0 .					%TO COMMENT
+
+
+%NON UTILISE FINALEMENT
+%coup_enrichir(Coup1, Score1, Coup2, Score2, MeilleurCoup, MeilleurScore).	%On compare les coups deux à deux
+coup_enrichir(Coup1, Score1, Coup2, Score2, Coup1, Score1):-	% si le coup1 est le meilleur coup
+		Score1 > Score2, !.
+coup_enrichir(Coup1, Score1, Coup2, Score2, Coup2, Score2).		% si le Coup2 est le meilleur coup
+
+
+
+
+affiche_position(X):-
+	write('-------Position du Trader-------'), nl,
+	Y is 3*X,
+	Z is Y+3*X,
+	tab(Z),
+	write('X'),
+	nl,
+	write('X = '),
+	write(X),
+	nl, nl,nl.									% position recalculée à partir de la précédente + 1, 2 ou 3
 
 	

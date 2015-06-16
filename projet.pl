@@ -199,8 +199,6 @@ affichageElement1([A|T]):- tab(2), afficher(A), affichageElement1(T).
 
 positionInitiale(X):- random(1,10,X).	% genere un nombre entre 1 et 9
 
-% position du trader aléatoire au début, puis est modfiée de 1 à 3 unités, allant de la position 1 à 9
-positionTrader(X):- random(1,4,X).
 
 %Afficher les piles du plateau et le trader à la bonne position EN DEBUT DE PARTIE
 affiche_piles_ini_trad(P, Trader):- write('-------Piles-------'), nl, generer_piles(P1, P2, P3, P4, P5, P6, P7, P8, P9, P),
@@ -331,7 +329,7 @@ cerealegardee(2, Choix1, Choix2, Choix2, Choix1).	%choix2
 %décrémente la céréale vendue, et retourne le nouveau plateau avec les 2 jetons de moins (et supprime les éventuelles listes vides)
 % jouer_coup(+PlateauInitial, ?Coup, ?NouveauPlateau)
 
-jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2, J2R2]):-
+jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos3, B2, J1R2, J2R2]):-
 %	write('********************JOUER COUP*******************'), nl,
 	delete_element([], P, Ptemp),		%on supprimer les éventuelles piles vides
 	Y is Pos + D,
@@ -351,10 +349,22 @@ jouer_coup([P, Pos, B, J1R, J2R], [Joueur, D, Garde, Vend], [NP, Pos2, B2, J1R2,
 	delete_first_sous_liste(Ptemp,Prec,Ptemp2),
 	delete_first_sous_liste(Ptemp2,Suiv,Ptemp3),
 	delete_element([], Ptemp3, NP),				%le nombre de piles vides supprimées change la position du trader
+	repositionne_trader(Pos2, Pos3, NP),
+	nl,write('Position du Trader '), write(Pos3),
 	nl, write('Etat des piles du plateau après le coup :'), nl, write(NP)
 %	affiche_piles(NP, Pos2)					%montre les 9 tetes de piles ave la position du trader
 	.
 
+
+%Si la position du Trader est supérieure au nombre de Piles (après suppression des piles vides par exemple), on repositionne le Trader à la dernière pile
+%repositionne_trader(AnciennePosition, NouvellePosition, Piles)
+repositionne_trader(Pos, NPos, Piles):- 
+	length(Piles, L), 
+	Pos > L, 
+	NPos is L, !
+	.
+
+repositionne_trader(Pos, Pos, Piles).	% si ce n'est pas le cas, il garde la même position
 
 
 add_reserve(Garde,Joueur,J1R,J2R,J1R2,J2R2) :-
